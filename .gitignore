@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local/editor noise.
+.vscode/*
+!.vscode/settings.json
+
+# Keep the repository small: only the robot assets used by new2.py are tracked.
+mujoco_menagerie/*
+!mujoco_menagerie/franka_emika_panda/
+!mujoco_menagerie/franka_emika_panda/**
+!mujoco_menagerie/umi_gripper/
+!mujoco_menagerie/umi_gripper/**
+
+# Keep merged_full_scene.xml tracked because it is useful for inspection.

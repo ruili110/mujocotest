@@ -1,0 +1,6 @@
+{
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda",
+    "python.defaultInterpreterPath": "C:\\Users\\Lirui\\anaconda3\\envs\\franka_mujoco_test\\python.exe",
+    "python.terminal.activateEnvironment": true
+}

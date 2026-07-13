@@ -1,0 +1,34 @@
+<mujoco model="plant_environment">
+    <!-- 将角度设置为 degree，这样你之前的 euler="90 0 0" 才能正常生效 -->
+    <compiler angle="radian" meshdir="assets" autolimits="true"/>
+    <option integrator="implicitfast"/>
+    
+    <asset>
+        <!-- 确保你的 stl 文件放在与此 xml 相同的目录或 assets 文件夹下 -->
+        <mesh name="my_pot_mesh" file="plant_pot.stl" scale="0.001 0.001 0.001"/>
+        <mesh name="my_plant_mesh" file="plant.stl" scale="0.03 0.03 0.03"/>
+        <material name="my_pot_mat" rgba="0.8 0.45 0.3 1"/>
+        <material name="my_plant_mat" rgba="0.2 0.6 0.1 1"/>
+    </asset>
+
+    <worldbody>
+        <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
+        <geom type="plane" size="1 1 0.1" rgba="0.9 0.9 0.9 1"/>
+
+        <!-- 纯视觉花盆 + 隐藏的物理内胆 -->
+        <body name="pot" pos="0.5 0 0">
+            <freejoint/>
+            <inertial pos="0 0 0.05" mass="0.4" diaginertia="0.001 0.001 0.001"/>
+            <geom type="mesh" mesh="my_pot_mesh" material="my_pot_mat" contype="0" conaffinity="0"/>
+            <geom type="cylinder" size="0.08 0.02" pos="0 0 0.02" rgba="0.8 0.45 0.3 0" contype="1" conaffinity="1"/>
+        </body>
+
+        <!-- 纯视觉植物 + 隐藏的物理抓取胶囊体 -->
+        <body name="plant" pos="0.5 0 0.2">
+            <freejoint/> 
+            <inertial pos="0 0 0.05" mass="0.1" diaginertia="0.0005 0.0005 0.0005"/>
+            <geom type="mesh" mesh="my_plant_mesh" material="my_plant_mat" euler="1.5708 0 0" contype="0" conaffinity="0"/>
+            <geom type="capsule" size="0.02 0.05" pos="0 0 0.05" rgba="1 1 1 0" contype="1" conaffinity="1"/>
+        </body>
+    </worldbody>
+</mujoco>
