@@ -301,7 +301,8 @@ def set_initial_pose(
         physics.named.data.qpos[joint_name] = value
 
     for actuator_name, joint_name in zip(PANDA_ACTUATOR_NAMES, PANDA_JOINT_NAMES):
-        physics.named.data.ctrl[actuator_name] = physics.named.data.qpos[joint_name]
+        joint_position = physics.named.data.qpos[joint_name].item()
+        physics.named.data.ctrl[actuator_name] = joint_position
 
     for joint_name in FINGER_JOINT_NAMES:
         physics.named.data.qpos[joint_name] = gripper_opening
@@ -444,10 +445,13 @@ class FrankaUmiCameraEnv:
         return self.get_observation(render=render)
 
     def get_camera_pos(self) -> np.ndarray:
-        return np.array([float(self.physics.named.data.qpos[name]) for name in CAMERA_JOINT_NAMES], dtype=float)
+        return np.array([self.physics.named.data.qpos[name].item() for name in CAMERA_JOINT_NAMES], dtype=float)
 
     def get_camera_euler(self) -> np.ndarray:
-        return np.array([float(self.physics.named.data.qpos[name]) for name in CAMERA_ROT_JOINT_NAMES], dtype=float)
+        return np.array(
+            [self.physics.named.data.qpos[name].item() for name in CAMERA_ROT_JOINT_NAMES],
+            dtype=float,
+        )
 
     def launch_viewer(self) -> None:
         self.run_viewer()

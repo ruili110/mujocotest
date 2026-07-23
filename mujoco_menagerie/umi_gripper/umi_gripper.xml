@@ -78,6 +78,7 @@
 
       <!-- Gripper Camera -->
       <camera name="gripper_gopro" pos="0 -0.092 0.04" quat="0 1 0 0" mode="fixed" fovy="155"/>
+      <site name="ee_site" pos="0 0.12 0" size="0.008" rgba="0.1 0.8 0.1 0.8"/>
 
       <!-- Positional Joints -->
       <joint name="gripper_joint_x" axis="1 0 0" class="gripper_slide"/>
@@ -127,7 +128,7 @@
         <geom mesh="left_finger_holder" class="visual" material="white"/>
         <geom mesh="left_finger_holder" class="collision"/>
         <geom pos="-0.041722 0.0779 -0.0159" quat="0 0 -1 1" mesh="left_finger" class="visual" material="orange"/>
-        <geom pos="-0.041722 0.0779 -0.0159" quat="0 0 -1 1" mesh="left_finger" class="collision"/>
+        <geom name="left_finger_pad" pos="-0.041722 0.0779 -0.0159" quat="0 0 -1 1" mesh="left_finger" class="collision"/>
       </body>
 
       <!-- Right Finger -->
@@ -146,7 +147,7 @@
         <geom mesh="right_finger_holder" class="visual" material="white"/>
         <geom mesh="right_finger_holder" class="collision"/>
         <geom pos="0.041722 0.0779 0.0099" quat="1 1 0 0" mesh="right_finger" class="visual" material="orange"/>
-        <geom pos="0.041722 0.0779 0.0099" quat="1 1 0 0" mesh="right_finger" class="collision"/>
+        <geom name="right_finger_pad" pos="0.041722 0.0779 0.0099" quat="1 1 0 0" mesh="right_finger" class="collision"/>
       </body>
     </body>
   </worldbody>

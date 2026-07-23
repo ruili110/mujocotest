@@ -93,68 +93,68 @@
     <mesh name="panda/link2_c" class="panda/" file="link2-8500c695b73e8ceeaa520c02db5684f02793b80f.stl"/>
     <mesh name="panda/link3_c" class="panda/" file="link3-0af960563df21dd3a3b0afac6e34f62bf10c71c4.stl"/>
     <mesh name="panda/link4_c" class="panda/" file="link4-97c9a53ee35f3939b3438a38005e78fd4c9f23cb.stl"/>
-    <mesh name="panda/link5_c0" class="panda/" file="link5_collision_0-62701baa64edc6ce8c0f6a0aded2aa9b6160efe6.obj"/>
-    <mesh name="panda/link5_c1" class="panda/" file="link5_collision_1-6272aa76908962cb1bae0169d73bc1fae8078f1b.obj"/>
-    <mesh name="panda/link5_c2" class="panda/" file="link5_collision_2-3a6a7a41cc469a594f250d44c55b99fedca3577b.obj"/>
+    <mesh name="panda/link5_c0" class="panda/" file="link5_collision_0-f402b8885893e833c27f7eca01b669b81476a48f.obj"/>
+    <mesh name="panda/link5_c1" class="panda/" file="link5_collision_1-3735bde5d4211e2d565b9cc20b919f55e697be05.obj"/>
+    <mesh name="panda/link5_c2" class="panda/" file="link5_collision_2-585e84d1d7e381827b73c7ecd50f2010775235c9.obj"/>
     <mesh name="panda/link6_c" class="panda/" file="link6-e9fa3ad660cf2a9b04e0ec55e8d56abf5891d531.stl"/>
     <mesh name="panda/link7_c" class="panda/" file="link7-5dcc7199c8e231447ebda37651ead64ebe3cf6ec.stl"/>
     <mesh name="panda/hand_c" class="panda/" file="hand-56394d6e04b1579484cd4323dc50c3240332cfe2.stl"/>
-    <mesh name="panda/link0_0" class="panda/" file="link0_0-14d8b06a620f771bd2e16235db2a194bb64abf0d.obj"/>
-    <mesh name="panda/link0_1" class="panda/" file="link0_1-b946feccbb46087764cc5c24ec0ba4f795a5d710.obj"/>
-    <mesh name="panda/link0_2" class="panda/" file="link0_2-e3e492ea263f765de6379e7588c610b9c6d400aa.obj"/>
-    <mesh name="panda/link0_3" class="panda/" file="link0_3-b35cdb5309ce70e5131fcea3a59a3fb4872245e5.obj"/>
-    <mesh name="panda/link0_4" class="panda/" file="link0_4-493d27bb81f3d108c42f0bc99b01d1c120a6fff5.obj"/>
-    <mesh name="panda/link0_5" class="panda/" file="link0_5-6a00790387edc832ddd21340d1b5e97ab3806c14.obj"/>
-    <mesh name="panda/link0_7" class="panda/" file="link0_7-b201ee6cbd4425882bd9a94d33f9d41a9ad9cd6c.obj"/>
-    <mesh name="panda/link0_8" class="panda/" file="link0_8-389c3529c91bb96cc1efab05c2c632fcee8d0cf2.obj"/>
-    <mesh name="panda/link0_9" class="panda/" file="link0_9-b31f7b9969e9fd6f23197e1693afdce8e763172b.obj"/>
-    <mesh name="panda/link0_10" class="panda/" file="link0_10-ace12edd858a7f2ca6ed675add46f41df71090b2.obj"/>
-    <mesh name="panda/link0_11" class="panda/" file="link0_11-1c299544915a6946e1d2daeb51e78c4347494457.obj"/>
-    <mesh name="panda/link1" class="panda/" file="link1-485f3b43a800e60d078f68ea73d6c03ef605a152.obj"/>
-    <mesh name="panda/link2" class="panda/" file="link2-9601614e2c86d54b71941a882cc3037c5a4ec91f.obj"/>
-    <mesh name="panda/link3_0" class="panda/" file="link3_0-f8422dbd5cec281f71ba76dafe62ccf7b5434f7a.obj"/>
-    <mesh name="panda/link3_1" class="panda/" file="link3_1-2827896bba2cea613a81466dc870fb4d4884427a.obj"/>
-    <mesh name="panda/link3_2" class="panda/" file="link3_2-d38f838f584ef19b3968e05702bb56444dbe5058.obj"/>
-    <mesh name="panda/link3_3" class="panda/" file="link3_3-ac7b4b868d00e96a20f4f9714374e5f9b2823675.obj"/>
-    <mesh name="panda/link4_0" class="panda/" file="link4_0-5257902b6614bf5ede159f37645d830dc8755712.obj"/>
-    <mesh name="panda/link4_1" class="panda/" file="link4_1-d8a0ee3c0fc2a3e63d6cf0b04f104e094f168688.obj"/>
-    <mesh name="panda/link4_2" class="panda/" file="link4_2-3645cf69c4ecf0de633b6bc0b43add5ed188eac9.obj"/>
-    <mesh name="panda/link4_3" class="panda/" file="link4_3-746fda3db899a356bac41c58de42305d9f07a028.obj"/>
-    <mesh name="panda/link5_0" class="panda/" file="link5_0-e09b9afb8d0d89a9e8cf8a7260f3c81b1aa3d310.obj"/>
-    <mesh name="panda/link5_1" class="panda/" file="link5_1-9457f0f23acbde1914a8aa824097df79722ca138.obj"/>
-    <mesh name="panda/link5_2" class="panda/" file="link5_2-4b4ff6b97929a53ba387a5a70a039e932376afe1.obj"/>
-    <mesh name="panda/link6_0" class="panda/" file="link6_0-73f3ceca20ec6deac289926de1e3c350990df93f.obj"/>
-    <mesh name="panda/link6_1" class="panda/" file="link6_1-0deb78794a06350bef4448cf6b1ad373b7ea751e.obj"/>
-    <mesh name="panda/link6_2" class="panda/" file="link6_2-c35d4e384d918763c4e219d77d801281fb84dcd5.obj"/>
-    <mesh name="panda/link6_3" class="panda/" file="link6_3-c2ecdae82645a560e8437b42405b85c5ca3825b1.obj"/>
-    <mesh name="panda/link6_4" class="panda/" file="link6_4-383bb4802e29b3ebe112674b19f86b2c83ea9268.obj"/>
-    <mesh name="panda/link6_5" class="panda/" file="link6_5-ed28451e9b016dd489c545611ee595e801534003.obj"/>
-    <mesh name="panda/link6_6" class="panda/" file="link6_6-2cd277268d167a071f033eccd5419462d3f96207.obj"/>
-    <mesh name="panda/link6_7" class="panda/" file="link6_7-62ea202bb53345b71c91554d3a4d3549f4947168.obj"/>
-    <mesh name="panda/link6_8" class="panda/" file="link6_8-2216420b8923f89b8e17c1c8111221e22f308fc7.obj"/>
-    <mesh name="panda/link6_9" class="panda/" file="link6_9-808fe2f0d0b33d91fb621f9851210c5811defcff.obj"/>
-    <mesh name="panda/link6_10" class="panda/" file="link6_10-6e385c5e37361a6dec8baee139a5b928996df807.obj"/>
-    <mesh name="panda/link6_11" class="panda/" file="link6_11-6efa12b4de603c920c4494648d60d702dfe0c22f.obj"/>
-    <mesh name="panda/link6_12" class="panda/" file="link6_12-8e3f63373cd7f95989767865f0cdc20bb50d6073.obj"/>
-    <mesh name="panda/link6_13" class="panda/" file="link6_13-8762014aa928a7e56661687a43ae64038a92086d.obj"/>
-    <mesh name="panda/link6_14" class="panda/" file="link6_14-7641c75ea8f4f35c15bd0e97848b0d1764e9b40f.obj"/>
-    <mesh name="panda/link6_15" class="panda/" file="link6_15-b51a2b3b56de5466cfc81f3001508f4339c85a1a.obj"/>
-    <mesh name="panda/link6_16" class="panda/" file="link6_16-d6bf296f1fa522702d112070874e74611ddcbf20.obj"/>
-    <mesh name="panda/link7_0" class="panda/" file="link7_0-8f14bba6c741f2ab4fc9f8e911095966f80cb496.obj"/>
-    <mesh name="panda/link7_1" class="panda/" file="link7_1-4a86915dccabc0a4cffc304d43892ccd5ec9d552.obj"/>
-    <mesh name="panda/link7_2" class="panda/" file="link7_2-6bee65945ab8ffd2f7d0a4d2d0e32b5f88b98b35.obj"/>
-    <mesh name="panda/link7_3" class="panda/" file="link7_3-852b867af6ea91b158f514349ce8be0b65ab65e4.obj"/>
-    <mesh name="panda/link7_4" class="panda/" file="link7_4-ad2c571df9926c2a9083c2da7688593901b3a9d3.obj"/>
-    <mesh name="panda/link7_5" class="panda/" file="link7_5-cddb414dee5c03e4d19ce01ab92b4579163a1bea.obj"/>
-    <mesh name="panda/link7_6" class="panda/" file="link7_6-fe5b3ca72cf48ee16231832f5f2ab8e602a07d1a.obj"/>
-    <mesh name="panda/link7_7" class="panda/" file="link7_7-1d00d7dfdffbf6f16d4969b810d32fae89576a70.obj"/>
-    <mesh name="panda/hand_0" class="panda/" file="hand_0-f6ef02a159b29985220adb8f2c866d18346f1302.obj"/>
-    <mesh name="panda/hand_1" class="panda/" file="hand_1-a9143a83b0a84672cc035d94c71c0d0902997629.obj"/>
-    <mesh name="panda/hand_2" class="panda/" file="hand_2-10bb966e71848779a41e270004d71da60e4219d1.obj"/>
-    <mesh name="panda/hand_3" class="panda/" file="hand_3-fd3fd4ed72b1a04b34a82e1025305465233af540.obj"/>
-    <mesh name="panda/hand_4" class="panda/" file="hand_4-6f9e5ea96bf57228890208df95d3c7955d8c6541.obj"/>
-    <mesh name="panda/finger_0" class="panda/" file="finger_0-97838f4b946679a89972e929c5138578a9cece14.obj"/>
-    <mesh name="panda/finger_1" class="panda/" file="finger_1-42dc3847379f61c1df049408d680ab5292a7655c.obj"/>
+    <mesh name="panda/link0_0" class="panda/" file="link0_0-b7cf6e228cebc1309b79491310541fe8a60e2d62.obj"/>
+    <mesh name="panda/link0_1" class="panda/" file="link0_1-5ecc0c585f0d6a4207ba87f6aeed2df5632b2ebe.obj"/>
+    <mesh name="panda/link0_2" class="panda/" file="link0_2-88529048e478fb7cca6eeeaaa0405b00ca337c0a.obj"/>
+    <mesh name="panda/link0_3" class="panda/" file="link0_3-75c03dfe4002c399dfeaea609db33c25ae42f82f.obj"/>
+    <mesh name="panda/link0_4" class="panda/" file="link0_4-6917a10a52309fc722169515f143ac9bd6a2b084.obj"/>
+    <mesh name="panda/link0_5" class="panda/" file="link0_5-8d54ecd0c38e0b412ac31ef46675fdca7e0e4717.obj"/>
+    <mesh name="panda/link0_7" class="panda/" file="link0_7-79cbcc01643937964f9e547e9b3d225888aa50c7.obj"/>
+    <mesh name="panda/link0_8" class="panda/" file="link0_8-4c89da97ea30fff7777d1a961c922a48425291ef.obj"/>
+    <mesh name="panda/link0_9" class="panda/" file="link0_9-776b30016c2bb8f206d560786910bfccb809926d.obj"/>
+    <mesh name="panda/link0_10" class="panda/" file="link0_10-d7b529ebc6940c0415ad91e938b0c39f05853d07.obj"/>
+    <mesh name="panda/link0_11" class="panda/" file="link0_11-46418d08940dd95e72b8290253d6bfb37aa3ba10.obj"/>
+    <mesh name="panda/link1" class="panda/" file="link1-ed231c089447a0928504d8a0b6d31c196f6f4b28.obj"/>
+    <mesh name="panda/link2" class="panda/" file="link2-21fdd1eb16bc9d11a5349b39cc21c9ecafff6cb2.obj"/>
+    <mesh name="panda/link3_0" class="panda/" file="link3_0-644740d89be54fee424dac34a096ed07f0c0be9a.obj"/>
+    <mesh name="panda/link3_1" class="panda/" file="link3_1-aa5980b7ffb0ff37d6f81bf5d03cca87b4182c72.obj"/>
+    <mesh name="panda/link3_2" class="panda/" file="link3_2-41efc81a33bb7585a8676c163e2d66ac5cc1fbb5.obj"/>
+    <mesh name="panda/link3_3" class="panda/" file="link3_3-c433c61f6a518e2810fa405a084aa55ae95bc09c.obj"/>
+    <mesh name="panda/link4_0" class="panda/" file="link4_0-70b359cb835f79b58037732ffb174c30589ca379.obj"/>
+    <mesh name="panda/link4_1" class="panda/" file="link4_1-8a206f8e5eee869db6b4d9e77db083f6edbc5e6b.obj"/>
+    <mesh name="panda/link4_2" class="panda/" file="link4_2-5c5b38db50c3864953a5ee4766d35f5fae84e0dc.obj"/>
+    <mesh name="panda/link4_3" class="panda/" file="link4_3-46cdfe6cf343836b30218551cd40c45197cd3f7d.obj"/>
+    <mesh name="panda/link5_0" class="panda/" file="link5_0-c9c057e806e8a7919fb33f70114229b6d3c40dcd.obj"/>
+    <mesh name="panda/link5_1" class="panda/" file="link5_1-f07ba3f01e7be86042be33cef54249a02bd73749.obj"/>
+    <mesh name="panda/link5_2" class="panda/" file="link5_2-fc227a4bf91b7bc23a55448c810557f391f1d5e3.obj"/>
+    <mesh name="panda/link6_0" class="panda/" file="link6_0-6836f8b697cf67e536dc9bbd5fa9250c58c12ca7.obj"/>
+    <mesh name="panda/link6_1" class="panda/" file="link6_1-d0da79111a0c81081fcdfa01fb58586c92d8322d.obj"/>
+    <mesh name="panda/link6_2" class="panda/" file="link6_2-d6b659cb277c78c300d62cdb6449eaaa8814b5d2.obj"/>
+    <mesh name="panda/link6_3" class="panda/" file="link6_3-ba09733138cd64d0a7366ffe1385267da3597481.obj"/>
+    <mesh name="panda/link6_4" class="panda/" file="link6_4-32e7cb101a33786176152037acd0a8872e7d5ad5.obj"/>
+    <mesh name="panda/link6_5" class="panda/" file="link6_5-38d0c1ecd191ee8d914ba6b7a6afa271432c665f.obj"/>
+    <mesh name="panda/link6_6" class="panda/" file="link6_6-5ed9d943e4d2c63735b56d3e3635a3a07c6470db.obj"/>
+    <mesh name="panda/link6_7" class="panda/" file="link6_7-106080e92cb497bc3906f4e5ee2f49fd62ea7f89.obj"/>
+    <mesh name="panda/link6_8" class="panda/" file="link6_8-bbfe67149c4cfd9d81968a91844069d474f53f2d.obj"/>
+    <mesh name="panda/link6_9" class="panda/" file="link6_9-09876ce72bf2f306c3ac7005f461a2d88f78dccd.obj"/>
+    <mesh name="panda/link6_10" class="panda/" file="link6_10-b0430678bf45d2dcb5a064b8a19f1f93945864fb.obj"/>
+    <mesh name="panda/link6_11" class="panda/" file="link6_11-dbcbe820a516782674773335ffc26931de719df1.obj"/>
+    <mesh name="panda/link6_12" class="panda/" file="link6_12-7f56f8ec4561cb5b724ff00e00d6f0efe8bf7123.obj"/>
+    <mesh name="panda/link6_13" class="panda/" file="link6_13-a0d4d39ca68ff2ec5a17977ecc13dc02b5b4fdd2.obj"/>
+    <mesh name="panda/link6_14" class="panda/" file="link6_14-fde4741db758169025860d9d06157c80aab9f9c0.obj"/>
+    <mesh name="panda/link6_15" class="panda/" file="link6_15-5e7addd48c4088cfeb5280ef77bc69e4cdb45939.obj"/>
+    <mesh name="panda/link6_16" class="panda/" file="link6_16-d583372e8c9632ad1aa003ef6c5ac09effbf2102.obj"/>
+    <mesh name="panda/link7_0" class="panda/" file="link7_0-2e4ca001c5c670d1e7b84e342df95cc1b01ee137.obj"/>
+    <mesh name="panda/link7_1" class="panda/" file="link7_1-3dfe858021e5f7d422c2f51e5663f07272b758fc.obj"/>
+    <mesh name="panda/link7_2" class="panda/" file="link7_2-2643e68c73e2988b9f66992bdd9ea846cae1e128.obj"/>
+    <mesh name="panda/link7_3" class="panda/" file="link7_3-9eff475605fd7c4d72ff0031ee375b7bab95920b.obj"/>
+    <mesh name="panda/link7_4" class="panda/" file="link7_4-6ea88c0c0f5a79079aa03008291a9df01ea43ed5.obj"/>
+    <mesh name="panda/link7_5" class="panda/" file="link7_5-916ac62d00e858d819cb553fe73db314185cdd47.obj"/>
+    <mesh name="panda/link7_6" class="panda/" file="link7_6-9d637adbf9ceabb0d5f85515c03d065c54fde3dc.obj"/>
+    <mesh name="panda/link7_7" class="panda/" file="link7_7-652eee34bbafccbee18e5c1c8f96823fcaaf242d.obj"/>
+    <mesh name="panda/hand_0" class="panda/" file="hand_0-cfe318371d80d790934fba8bf6b6fb7f64071ac6.obj"/>
+    <mesh name="panda/hand_1" class="panda/" file="hand_1-7cd93918f5bc964665658b0af0ff92876fe9a85d.obj"/>
+    <mesh name="panda/hand_2" class="panda/" file="hand_2-9aff904f0b08a77437e7894da1d4efc4d4a52059.obj"/>
+    <mesh name="panda/hand_3" class="panda/" file="hand_3-9909795ec9ec03e824cbb49691c32a4366fb2f4d.obj"/>
+    <mesh name="panda/hand_4" class="panda/" file="hand_4-8a7602e34e1ed3ddacdaa10cf857f811276d4a2c.obj"/>
+    <mesh name="panda/finger_0" class="panda/" file="finger_0-cf20576acd5b52daef643d398ae3b30fee1027d3.obj"/>
+    <mesh name="panda/finger_1" class="panda/" file="finger_1-87276f8cb602e3141fccda3eb9b263c18fba3fe1.obj"/>
     <mesh name="panda/umi_gripper/left_finger_holder" class="panda/umi_gripper/" file="left_finger_holder-675d8b5b2f086a15dd4dce92693a823ce1d6679e.stl"/>
     <mesh name="panda/umi_gripper/left_finger" class="panda/umi_gripper/" file="left_finger-0864c019d8373563c5aadaeff289a20e9fb2c63f.stl"/>
     <mesh name="panda/umi_gripper/right_finger_holder" class="panda/umi_gripper/" file="right_finger_holder-597dce059495c7ead1c74b3f48d5747ee4d9958d.stl"/>
@@ -181,11 +181,11 @@
       <geom name="//unnamed_geom_2" class="/" type="mesh" contype="0" conaffinity="0" material="my_pot_mat" mesh="my_pot_mesh"/>
       <geom name="pot_collision" class="/" type="box" contype="1" conaffinity="1" size="0.073999999999999996 0.185 0.0050000000000000001" rgba="1 0 0 0" pos="0 0 0.0050000000000000001"/>
     </body>
-    <body name="plant" pos="0.5 0 0.5">
-      <freejoint name="//unnamed_joint_1"/>
+    <body name="plant" pos="0.5 0 0.20000000000000001">
+      <freejoint name="weed_freejoint"/>
       <inertial pos="0 0 0.050000000000000003" mass="0.10000000000000001" diaginertia="0.00050000000000000001 0.00050000000000000001 0.00050000000000000001"/>
-      <geom name="//unnamed_geom_4" class="/" type="mesh" contype="0" conaffinity="0" material="my_plant_mat" pos="0 0 0.052200000000000003" euler="1.5708 0 0" mesh="my_plant_mesh"/>
-      <geom name="plant_collision" class="/" type="capsule" contype="1" conaffinity="1" size="0.014999999999999999 0.059999999999999998" rgba="0 0.40000000000000002 1 0" pos="0 0 0"/>
+      <geom name="//unnamed_geom_3" class="/" type="mesh" contype="0" conaffinity="0" material="my_plant_mat" euler="1.5708 0 0" mesh="my_plant_mesh"/>
+      <geom name="weed_geom" class="/" type="capsule" contype="1" conaffinity="1" size="0.02 0.050000000000000003" rgba="1 1 1 0" pos="0 0 0.050000000000000003"/>
     </body>
     <site name="arm_base" class="/" pos="0 0 0"/>
     <body pos="0 0 0" name="panda/">
@@ -276,6 +276,7 @@
                       <body pos="0 0 0.29999999999999999" euler="0 3.1415926535897931 2.6000000000000001" name="panda/umi_gripper/">
                         <body name="panda/umi_gripper//unnamed_body_0" pos="0 0 0.11" quat="-1 1 0 0">
                           <camera name="panda/umi_gripper/gripper_gopro" class="panda/umi_gripper/" mode="fixed" fovy="155" pos="0 -0.091999999999999998 0.040000000000000001" quat="0 1 0 0"/>
+                          <site name="panda/umi_gripper/ee_site" class="panda/umi_gripper/" rgba="0.10000000000000001 0.80000000000000004 0.10000000000000001 0.80000000000000004" size="0.0080000000000000002" pos="0 0.12 0"/>
                           <geom name="panda/umi_gripper/linear_guide_rail" class="panda/umi_gripper/visual" type="box" size="0.080000000000000002 0.0030000000000000001 0.0040000000000000001" material="panda/umi_gripper/light_gray" pos="0 -0.002 0.062"/>
                           <geom name="panda/umi_gripper/left_mirror" class="panda/umi_gripper/visual" type="box" size="0.029999999999999999 0.018700000000000001 0.0001" material="panda/umi_gripper/mirror" pos="-0.069000000000000006 -0.057000000000000002 0.040000000000000001" quat="0.82799999999999996 0 0.5605 0"/>
                           <geom name="panda/umi_gripper/right_mirror" class="panda/umi_gripper/visual" type="box" size="0.029999999999999999 0.018700000000000001 0.0001" material="panda/umi_gripper/mirror" pos="0.069000000000000006 -0.057000000000000002 0.040000000000000001" quat="0.82799999999999996 0 -0.5605 0"/>
@@ -294,7 +295,7 @@
                             <geom name="panda/umi_gripper//unnamed_geom_12" class="panda/umi_gripper/visual" material="panda/umi_gripper/white" mesh="panda/umi_gripper/left_finger_holder"/>
                             <geom name="panda/umi_gripper//unnamed_geom_13" class="panda/umi_gripper/collision" mesh="panda/umi_gripper/left_finger_holder"/>
                             <geom name="panda/umi_gripper//unnamed_geom_14" class="panda/umi_gripper/visual" material="panda/umi_gripper/orange" pos="-0.041722000000000002 0.077899999999999997 -0.015900000000000001" quat="0 0 -1 1" mesh="panda/umi_gripper/left_finger"/>
-                            <geom name="panda/umi_gripper//unnamed_geom_15" class="panda/umi_gripper/collision" pos="-0.041722000000000002 0.077899999999999997 -0.015900000000000001" quat="0 0 -1 1" mesh="panda/umi_gripper/left_finger"/>
+                            <geom name="panda/umi_gripper/left_finger_pad" class="panda/umi_gripper/collision" pos="-0.041722000000000002 0.077899999999999997 -0.015900000000000001" quat="0 0 -1 1" mesh="panda/umi_gripper/left_finger"/>
                           </body>
                           <body name="panda/umi_gripper/right_finger_holder" quat="1 1 0 0">
                             <geom name="panda/umi_gripper/right_screw_back_outside" class="panda/umi_gripper/screw" pos="0.051499999999999997 0.070000000000000007 0.012"/>
@@ -309,7 +310,7 @@
                             <geom name="panda/umi_gripper//unnamed_geom_23" class="panda/umi_gripper/visual" material="panda/umi_gripper/white" mesh="panda/umi_gripper/right_finger_holder"/>
                             <geom name="panda/umi_gripper//unnamed_geom_24" class="panda/umi_gripper/collision" mesh="panda/umi_gripper/right_finger_holder"/>
                             <geom name="panda/umi_gripper//unnamed_geom_25" class="panda/umi_gripper/visual" material="panda/umi_gripper/orange" pos="0.041722000000000002 0.077899999999999997 0.0099000000000000008" quat="1 1 0 0" mesh="panda/umi_gripper/right_finger"/>
-                            <geom name="panda/umi_gripper//unnamed_geom_26" class="panda/umi_gripper/collision" pos="0.041722000000000002 0.077899999999999997 0.0099000000000000008" quat="1 1 0 0" mesh="panda/umi_gripper/right_finger"/>
+                            <geom name="panda/umi_gripper/right_finger_pad" class="panda/umi_gripper/collision" pos="0.041722000000000002 0.077899999999999997 0.0099000000000000008" quat="1 1 0 0" mesh="panda/umi_gripper/right_finger"/>
                           </body>
                           <body name="panda/umi_gripper/input_camera_mount">
                             <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
