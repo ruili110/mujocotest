@@ -174,18 +174,27 @@
   <worldbody>
     <light name="//unnamed_light_0" class="/" directional="true" pos="0 0 1.5" dir="0 0 -1"/>
     <geom name="//unnamed_geom_0" class="/" type="plane" size="1 1 0.10000000000000001" rgba="0.90000000000000002 0.90000000000000002 0.90000000000000002 1"/>
+<<<<<<< ours
     <geom name="support_box" class="/" type="box" contype="1" conaffinity="1" size="0.20000000000000001 0.27500000000000002 0.14999999999999999" rgba="0 0 0 1" pos="0.5 0 0.14999999999999999"/>
     <body name="pot" pos="0.5 0 0.29999999999999999">
       <freejoint name="//unnamed_joint_0"/>
       <inertial pos="0 0 0.037499999999999999" mass="0.40000000000000002" diaginertia="0.004751 0.00091799999999999998 0.0052940000000000001"/>
       <geom name="//unnamed_geom_2" class="/" type="mesh" contype="0" conaffinity="0" material="my_pot_mat" mesh="my_pot_mesh"/>
       <geom name="pot_collision" class="/" type="box" contype="1" conaffinity="1" size="0.073999999999999996 0.185 0.0050000000000000001" rgba="1 0 0 0" pos="0 0 0.0050000000000000001"/>
+=======
+    <body name="pot" pos="0.5 0 0">
+      <freejoint name="pot_freejoint"/>
+      <inertial pos="0 0 0.050000000000000003" mass="0.40000000000000002" diaginertia="0.001 0.001 0.001"/>
+      <geom name="//unnamed_geom_1" class="/" type="mesh" contype="0" conaffinity="0" material="my_pot_mat" mesh="my_pot_mesh"/>
+      <geom name="//unnamed_geom_2" class="/" type="cylinder" contype="1" conaffinity="1" size="0.035000000000000003 0.020500000000000001" rgba="0.80000000000000004 0.45000000000000001 0.29999999999999999 0" pos="0 0 0.020500000000000001"/>
+>>>>>>> theirs
     </body>
-    <body name="plant" pos="0.5 0 0.20000000000000001">
+    <body name="plant" pos="0.5 0 0.16600000000000001">
       <freejoint name="weed_freejoint"/>
       <inertial pos="0 0 0.050000000000000003" mass="0.10000000000000001" diaginertia="0.00050000000000000001 0.00050000000000000001 0.00050000000000000001"/>
       <geom name="//unnamed_geom_3" class="/" type="mesh" contype="0" conaffinity="0" material="my_plant_mat" euler="1.5708 0 0" mesh="my_plant_mesh"/>
-      <geom name="weed_geom" class="/" type="capsule" contype="1" conaffinity="1" size="0.02 0.050000000000000003" rgba="1 1 1 0" pos="0 0 0.050000000000000003"/>
+      <geom name="weed_geom" class="/" type="capsule" contype="1" conaffinity="1" size="0.0080000000000000002 0.044999999999999998" rgba="1 1 1 0" pos="0 0 -0.070000000000000007"/>
+      <geom name="weed_root" class="/" type="cylinder" contype="1" conaffinity="1" size="0.021999999999999999 0.0050000000000000001" rgba="1 1 1 0" pos="0 0 -0.12"/>
     </body>
     <site name="arm_base" class="/" pos="0 0 0"/>
     <body pos="0 0 0" name="panda/">

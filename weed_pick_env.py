@@ -31,6 +31,7 @@ from new2 import build_scene
 @dataclass(frozen=True)
 class SceneNames:
     ee_site: str = "panda/umi_gripper/ee_site"
+    pot_joint: str = "pot_freejoint"
     weed_body: str = "plant"
     weed_joint: str = "weed_freejoint"
     arm_joints: tuple[str, ...] = tuple(f"panda/joint{i}" for i in range(1, 8))
@@ -46,7 +47,7 @@ class SceneNames:
 
 
 DEFAULT_DR_CONFIG: dict[str, Any] = {
-    "weed_xy_range": 0.03,
+    "pot_xy_range": 0.03,
     "weed_yaw_range": np.pi,
     "robot_qpos_noise": 0.01,
     "action_noise_std": 0.0,
@@ -136,8 +137,11 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
             raise ValueError("home_arm must contain exactly seven joint positions.")
         self._validate_home_pose()
         self._nominal_weed_qpos = self.model.qpos0[
-            self.weed_qpos_adr : self.weed_qpos_adr + 7 
-        ].copy() ## weed uses free joint and thus +7, to represent full 3D pos
+            self.weed_qpos_adr : self.weed_qpos_adr + 7
+        ].copy()
+        self._nominal_pot_qpos = self.model.qpos0[
+            self.pot_qpos_adr : self.pot_qpos_adr + 7
+        ].copy()
         self._weed_rest_height = float(self._weed_position()[2])
         self._nominal_body_mass = self.model.body_mass.copy()
         self._nominal_geom_friction = self.model.geom_friction.copy()
@@ -170,7 +174,7 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
 
         self._restore_nominal_model_parameters()
         self._apply_domain_randomization()
-        self._randomize_weed_pose()
+        self._randomize_pot_and_weed_pose()
         self._randomize_robot_qpos()
         self.data.qpos[self.finger_qpos_adr] = DEFAULT_GRIPPER_OPENING  ##IN here the diplsvment is put on both fingers
         self.data.ctrl[self.arm_actuator_ids] = self.data.qpos[self.arm_qpos_adr]
@@ -216,12 +220,19 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
         self.ee_site_id = self._require_id(
             mujoco.mjtObj.mjOBJ_SITE, self.names.ee_site
         )
+        self.pot_joint_id = self._require_id(
+            mujoco.mjtObj.mjOBJ_JOINT, self.names.pot_joint
+        )
         self.weed_body_id = self._require_id(
             mujoco.mjtObj.mjOBJ_BODY, self.names.weed_body
         )
         self.weed_joint_id = self._require_id(
             mujoco.mjtObj.mjOBJ_JOINT, self.names.weed_joint
         )
+
+        if self.model.jnt_type[self.pot_joint_id] != mujoco.mjtJoint.mjJNT_FREE:
+            raise ValueError("The pot joint must be a MuJoCo free joint.")
+        self.pot_qpos_adr = int(self.model.jnt_qposadr[self.pot_joint_id])
 
         if self.model.jnt_type[self.weed_joint_id] != mujoco.mjtJoint.mjJNT_FREE:
             raise ValueError("The weed joint must be a MuJoCo free joint.")
@@ -443,17 +454,23 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
                 self._nominal_geom_friction[geom_id] * friction_scale
             )
 
-    def _randomize_weed_pose(self) -> None:
-        xy_range = float(self.dr_config["weed_xy_range"])
+    def _randomize_pot_and_weed_pose(self) -> None:
+        xy_range = float(self.dr_config["pot_xy_range"])
         yaw_range = float(self.dr_config["weed_yaw_range"])
 
-        qpos = self._nominal_weed_qpos.copy()
-        qpos[:2] += self.np_random.uniform(-xy_range, xy_range, size=2)
+        xy_offset = self.np_random.uniform(-xy_range, xy_range, size=2)
+        pot_qpos = self._nominal_pot_qpos.copy()
+        weed_qpos = self._nominal_weed_qpos.copy()
+        pot_qpos[:2] += xy_offset
+        weed_qpos[:2] += xy_offset
+
         yaw = self.np_random.uniform(-yaw_range, yaw_range)
-        qpos[3:7] = np.array(
+        weed_qpos[3:7] = np.array(
             [np.cos(yaw / 2.0), 0.0, 0.0, np.sin(yaw / 2.0)]
         )
-        self.data.qpos[self.weed_qpos_adr : self.weed_qpos_adr + 7] = qpos
+
+        self.data.qpos[self.pot_qpos_adr : self.pot_qpos_adr + 7] = pot_qpos
+        self.data.qpos[self.weed_qpos_adr : self.weed_qpos_adr + 7] = weed_qpos
 
     def _randomize_robot_qpos(self) -> None:
         noise = float(self.dr_config["robot_qpos_noise"])
