@@ -5,8 +5,8 @@
     
     <asset>
         <!-- 确保你的 stl 文件放在与此 xml 相同的目录或 assets 文件夹下 -->
-        <mesh name="my_pot_mesh" file="plant_pot.stl" scale="0.001 0.001 0.001"/>
-        <mesh name="my_plant_mesh" file="plant.stl" scale="0.03 0.03 0.03"/>
+        <mesh name="my_pot_mesh" file="plant_pot.stl" scale="0.002 0.005 0.001"/>
+        <mesh name="my_plant_mesh" file="plant.stl" scale="0.03 0.045 0.03"/>
         <material name="my_pot_mat" rgba="0.8 0.45 0.3 1"/>
         <material name="my_plant_mat" rgba="0.2 0.6 0.1 1"/>
     </asset>
@@ -15,20 +15,27 @@
         <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
         <geom type="plane" size="1 1 0.1" rgba="0.9 0.9 0.9 1"/>
 
+        <!-- 55 cm x 40 cm x 30 cm support box, centered below the pot -->
+        <geom name="support_box" type="box" pos="0.5 0 0.15" size="0.2 0.275 0.15"
+              rgba="0 0 0 1" contype="1" conaffinity="1"/>
+
         <!-- 纯视觉花盆 + 隐藏的物理内胆 -->
-        <body name="pot" pos="0.5 0 0">
+        <body name="pot" pos="0.5 0 0.3">
             <freejoint/>
-            <inertial pos="0 0 0.05" mass="0.4" diaginertia="0.001 0.001 0.001"/>
+            <inertial pos="0 0 0.0375" mass="0.4" diaginertia="0.004751 0.000918 0.005294"/>
             <geom type="mesh" mesh="my_pot_mesh" material="my_pot_mat" contype="0" conaffinity="0"/>
-            <geom type="cylinder" size="0.08 0.02" pos="0 0 0.02" rgba="0.8 0.45 0.3 0" contype="1" conaffinity="1"/>
+            <geom name="pot_collision" type="box" size="0.074 0.185 0.005" pos="0 0 0.005"
+                  rgba="1 0 0 0.35" contype="1" conaffinity="1"/>
         </body>
 
         <!-- 纯视觉植物 + 隐藏的物理抓取胶囊体 -->
-        <body name="plant" pos="0.5 0 0.2">
+        <body name="plant" pos="0.5 0 0.5">
             <freejoint/> 
             <inertial pos="0 0 0.05" mass="0.1" diaginertia="0.0005 0.0005 0.0005"/>
-            <geom type="mesh" mesh="my_plant_mesh" material="my_plant_mat" euler="1.5708 0 0" contype="0" conaffinity="0"/>
-            <geom type="capsule" size="0.02 0.05" pos="0 0 0.05" rgba="1 1 1 0" contype="1" conaffinity="1"/>
+            <geom type="mesh" mesh="my_plant_mesh" material="my_plant_mat" pos="0 0 0.0522"
+                  euler="1.5708 0 0" contype="0" conaffinity="0"/>
+            <geom name="plant_collision" type="capsule" size="0.015 0.06" pos="0 0 0"
+                  rgba="0 0.4 1 0.5" contype="1" conaffinity="1"/>
         </body>
     </worldbody>
 </mujoco>

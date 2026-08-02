@@ -287,13 +287,14 @@ def set_initial_pose(
     camera: CameraConfig = CameraConfig(),
 ) -> None:
     home_arm = {
-        "panda/joint1": 0.0,
-        "panda/joint2": -0.405,
-        "panda/joint3": 0.0,
-        "panda/joint4": -2.25,
-        "panda/joint5": 0.0,
-        "panda/joint6": 1.28,
-        "panda/joint7": 1.0,
+        # Terminal pose from "Demeter_Exp1 - new pos.task" (Pose 2).
+        "panda/joint1": -0.01617866471870486,
+        "panda/joint2": -0.3351507979411188,
+        "panda/joint3": 0.11335772886207839,
+        "panda/joint4": -1.3269075321321429,
+        "panda/joint5": 0.021510896893726657,
+        "panda/joint6": 0.7344821652580072,
+        "panda/joint7": 0.8923453157986305,
     }
 
     for joint_name, value in home_arm.items():

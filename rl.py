@@ -10,7 +10,18 @@ import numpy as np
 from new2 import FrankaUmiCameraEnv
 
 
-HOME_ARM = np.array([0.0, -0.405, 0.0, -2.25, 0.0, 1.28, 1.0], dtype=float)
+HOME_ARM = np.array(
+    [
+        -0.01617866471870486,
+        -0.3351507979411188,
+        0.11335772886207839,
+        -1.3269075321321429,
+        0.021510896893726657,
+        0.7344821652580072,
+        0.8923453157986305,
+    ],
+    dtype=float,
+)
 DEFAULT_GRIPPER = 0.03
 DEFAULT_CAMERA_POS = np.array([0.0, -0.12249176, 0.05800533], dtype=float)
 DEFAULT_CAMERA_EULER = np.array([-0.6751, 0.0, 0.0], dtype=float)
@@ -35,7 +46,7 @@ Commands:
   q                         quit
 
 Examples:
-  arm 0 -0.405 0 -2.25 0 1.28 1
+  arm -0.01618 -0.33515 0.11336 -1.32691 0.02151 0.73448 0.89235
   delta 2 0.05
   grip 0.03
   cam 0 -0.12249176 0.05800533
