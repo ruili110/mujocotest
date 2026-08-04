@@ -6,7 +6,8 @@ Scope of this version:
 - correct qpos vs DoF indexing
 - damped least-squares differential IK
 - bilateral grasp detection
-- pick-only success (grasp and lift)
+- stable pick-only success (grasp and hold above the lift target)
+- normalized ManiSkill-style staged dense reward
 - small, reset-time domain randomization
 
 
@@ -58,7 +59,8 @@ DEFAULT_DR_CONFIG: dict[str, Any] = {
 
 
 HOME_ARM = np.array([0.0, -0.405, 0.0, -2.25, 0.0, 1.28, 1.0], dtype=np.float64)
-DEFAULT_GRIPPER_OPENING = 0.03
+DEFAULT_GRIPPER_OPENING = 0.04
+MAX_DENSE_REWARD = 5.0
 
 
 class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
@@ -67,8 +69,7 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
     Action layout, all normalized to [-1, 1]:
         [dx, dy, dz, dRx, dRy, dRz, gripper_width]
 
-    The last component is continuous. -1 maps to minimum physical gripper
-    width and +1 maps to maximum physical gripper width.
+    The last component is continuous. -1 closes the gripper and +1 opens it.
     """
 
     metadata = {"render_modes": []}
@@ -79,9 +80,10 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
         "ee_pos": 3,
         "ee_quat": 4,
         "gripper_width": 1,
+        "is_grasped": 1,
         "weed_rel_ee": 3,
         "last_action": 7,
-    }
+    } ## Is-grasped is important for the agent to fully differentiate itself from when it is just close to the weed to when it has grasped the weed
     OBS_DIM = sum(OBS_COMPONENTS.values())
 
     def __init__(
@@ -97,11 +99,14 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
         rot_scale: float = np.deg2rad(4.0),
         ik_damping: float = 0.05,
         lift_height: float = 0.05,
+        success_hold_steps: int = 5,
     ) -> None:
         super().__init__()
 
         if frame_skip < 1:
             raise ValueError("frame_skip must be at least 1")
+        if success_hold_steps < 1:
+            raise ValueError("success_hold_steps must be at least 1")
 
         self.names = names or SceneNames()
         self._physics: mjcf.Physics | None = None
@@ -124,6 +129,7 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
         self.rot_scale = float(rot_scale)
         self.ik_damping = float(ik_damping)
         self.lift_height = float(lift_height)
+        self.success_hold_steps = int(success_hold_steps)
 
         self.dr_config = deepcopy(DEFAULT_DR_CONFIG)
         if dr_config is not None:
@@ -157,7 +163,10 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
 
         self._step_count = 0
         self._prev_action = np.zeros(7, dtype=np.float32)
-        self._last_action_delta = np.zeros(7, dtype=np.float32)
+        self._success_hold_count = 0
+        self._grasp_once = False
+        self._left_contact_once = False
+        self._right_contact_once = False
 
     @property
     def control_dt(self) -> float:
@@ -170,19 +179,26 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
         mujoco.mj_resetData(self.model, self.data)
         self._step_count = 0
         self._prev_action.fill(0.0)
-        self._last_action_delta.fill(0.0)
+        self._success_hold_count = 0
+        self._grasp_once = False
+        self._left_contact_once = False
+        self._right_contact_once = False
 
         self._restore_nominal_model_parameters()
         self._apply_domain_randomization()
         self._randomize_pot_and_weed_pose()
         self._randomize_robot_qpos()
-        self.data.qpos[self.finger_qpos_adr] = DEFAULT_GRIPPER_OPENING  ##IN here the diplsvment is put on both fingers
+        self.data.qpos[self.finger_qpos_adr] = (
+            self._gripper_opening_to_joint_positions(DEFAULT_GRIPPER_OPENING)
+        )
         self.data.ctrl[self.arm_actuator_ids] = self.data.qpos[self.arm_qpos_adr]
-        self.data.ctrl[self.gripper_actuator_id] = DEFAULT_GRIPPER_OPENING
+        self.data.ctrl[self.gripper_actuator_id] = (
+            self._gripper_opening_to_ctrl_target(DEFAULT_GRIPPER_OPENING)
+        )
         mujoco.mj_forward(self.model, self.data)
 
-        obs = self._get_obs()
-        return obs, self._get_info()
+        info = self._get_info()
+        return self._get_obs(is_grasped=info["is_grasped"]), info
 
     def step(self, action: np.ndarray):
         action = np.asarray(action, dtype=np.float32)
@@ -206,15 +222,23 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
         for _ in range(self.frame_skip):
             mujoco.mj_step(self.model, self.data)
 
-        self._last_action_delta = executed_action - self._prev_action
         self._prev_action = executed_action.copy()
         self._step_count += 1
 
         info = self._get_info()
         reward = self._compute_reward(info)
-        terminated = bool(info["success"] or info["failure"])
+        # Keep successful episodes on the fixed horizon, as ManiSkill does.
+        # This makes reaching and maintaining success earlier more rewarding
+        # Changed becasue if not then the robot will grasp the weed but not lift it as it knows it will finish with a reward of 5, and waiitng is more protitable than lifting the weed. So we will terminate the episode if the robot has grasped the weed and lifted it to the target height for a certain number of steps.
+        terminated = bool(info["failure"])
         truncated = bool(self._step_count >= self.max_episode_steps and not terminated)
-        return self._get_obs(), reward, terminated, truncated, info
+        return (
+            self._get_obs(is_grasped=info["is_grasped"]),
+            reward,
+            terminated,
+            truncated,
+            info,
+        )
 
     def _cache_model_ids(self) -> None:
         self.ee_site_id = self._require_id(
@@ -295,6 +319,13 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
                     f"Arm actuator {actuator_id} is not attached to a configured arm joint."
                 )
 
+        finger_ranges = self.model.jnt_range[self.finger_joint_ids]
+        gripper_ctrl_range = self.model.actuator_ctrlrange[self.gripper_actuator_id]
+        if not np.allclose(finger_ranges, gripper_ctrl_range):
+            raise ValueError(
+                "Symmetric finger joint ranges must match the gripper control range."
+            )
+
     def _validate_home_pose(self) -> None:
         lower = self.model.jnt_range[self.arm_joint_ids, 0]
         upper = self.model.jnt_range[self.arm_joint_ids, 1]
@@ -341,16 +372,35 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
         return np.clip(q_target, lower + 0.01, upper - 0.01)
 
     def _normalized_to_gripper_target(self, command: float) -> float:
-        """Map normalized action [-1, 1] to actuator control range."""
+        """Map -1 (closed) and +1 (open) to the actuator control range."""
         ctrl_min, ctrl_max = self.model.actuator_ctrlrange[self.gripper_actuator_id]
-        alpha = 0.5 * (float(np.clip(command, -1.0, 1.0)) + 1.0)
-        return float(ctrl_min + alpha * (ctrl_max - ctrl_min))
+        opening_fraction = 0.5 * (
+            float(np.clip(command, -1.0, 1.0)) + 1.0
+        )
+        return float(ctrl_max - opening_fraction * (ctrl_max - ctrl_min))
 
-    def _current_gripper_width(self) -> float:
-        # Assumes symmetric finger qpos values whose sum is physical opening.
-        return float(np.sum(self.data.qpos[self.finger_qpos_adr]))
+    def _gripper_opening_to_joint_positions(self, opening: float) -> np.ndarray:
+        lower = self.model.jnt_range[self.finger_joint_ids, 0]
+        upper = self.model.jnt_range[self.finger_joint_ids, 1]
+        max_opening = float(np.sum(upper - lower))
+        opening_fraction = float(np.clip(opening / max_opening, 0.0, 1.0))
+        return upper - opening_fraction * (upper - lower)
 
-    def _get_obs(self) -> np.ndarray:
+    def _gripper_opening_to_ctrl_target(self, opening: float) -> float:
+        ctrl_min, ctrl_max = self.model.actuator_ctrlrange[self.gripper_actuator_id]
+        lower = self.model.jnt_range[self.finger_joint_ids, 0]
+        upper = self.model.jnt_range[self.finger_joint_ids, 1]
+        max_opening = float(np.sum(upper - lower))
+        opening_fraction = float(np.clip(opening / max_opening, 0.0, 1.0))
+        return float(ctrl_max - opening_fraction * (ctrl_max - ctrl_min))
+
+    def _current_gripper_opening(self) -> float:
+        lower = self.model.jnt_range[self.finger_joint_ids, 0]
+        upper = self.model.jnt_range[self.finger_joint_ids, 1]
+        qpos = np.clip(self.data.qpos[self.finger_qpos_adr], lower, upper)
+        return float(np.sum(upper - qpos))
+
+    def _get_obs(self, *, is_grasped: bool | None = None) -> np.ndarray:
         arm_qpos = self.data.qpos[self.arm_qpos_adr].copy()
         arm_qvel = self.data.qvel[self.arm_dof_adr].copy()
         ee_pos = self.data.site_xpos[self.ee_site_id].copy()
@@ -359,13 +409,16 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
             ee_quat = -ee_quat
 
         weed_pos = self._weed_position()
+        if is_grasped is None:
+            is_grasped = self._is_grasping()
         obs = np.concatenate(
             (
                 arm_qpos,
                 arm_qvel,
                 ee_pos,
                 ee_quat,
-                np.array([self._current_gripper_width()]),
+                np.array([self._current_gripper_opening()]),
+                np.array([float(is_grasped)]),
                 weed_pos - ee_pos,
                 self._prev_action,
             )
@@ -386,7 +439,7 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
         mujoco.mju_mat2Quat(quat, self.data.site_xmat[site_id])
         return quat
 
-    def _is_grasping(self) -> bool:
+    def _finger_contact_state(self) -> tuple[bool, bool]:
         left_contact = False
         right_contact = False
 
@@ -395,17 +448,30 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
             if pair & self.weed_geom_ids:
                 left_contact |= bool(pair & self.left_pad_geom_ids)
                 right_contact |= bool(pair & self.right_pad_geom_ids)
-            if left_contact and right_contact:
-                return True
-        return False
+        return left_contact, right_contact
+
+    def _is_grasping(self) -> bool:
+        left_contact, right_contact = self._finger_contact_state()
+        return bool(left_contact and right_contact)
 
     def _get_info(self) -> dict[str, Any]:
         ee_pos = self.data.site_xpos[self.ee_site_id]
         weed_pos = self._weed_position()
         reach_distance = float(np.linalg.norm(weed_pos - ee_pos))
-        is_grasped = self._is_grasping()
+        left_contact, right_contact = self._finger_contact_state()
+        is_grasped = bool(left_contact and right_contact)
+        self._left_contact_once |= left_contact
+        self._right_contact_once |= right_contact
+        self._grasp_once |= is_grasped
         lift_amount = float(weed_pos[2] - self._weed_rest_height)
-        success = bool(is_grasped and lift_amount >= self.lift_height)
+        lift_target_reached = bool(
+            is_grasped and lift_amount >= self.lift_height
+        )
+        if lift_target_reached:
+            self._success_hold_count += 1
+        else:
+            self._success_hold_count = 0
+        success = bool(self._success_hold_count >= self.success_hold_steps)
 
         # Simple failure guard for obviously invalid episodes.
         failure = bool(not np.all(np.isfinite(self.data.qpos)) or weed_pos[2] < -0.1)
@@ -414,25 +480,34 @@ class WeedPickEnv(gym.Env[np.ndarray, np.ndarray]):
             "is_success": success,
             "failure": failure,
             "is_grasped": is_grasped,
+            "left_contact": left_contact,
+            "right_contact": right_contact,
+            "grasp_once": self._grasp_once,
+            "left_contact_once": self._left_contact_once,
+            "right_contact_once": self._right_contact_once,
             "reach_distance": reach_distance,
             "lift_amount": lift_amount,
+            "lift_target_reached": lift_target_reached,
+            "success_hold_count": self._success_hold_count,
             "control_dt": self.control_dt,
         }
 
     def _compute_reward(self, info: dict[str, Any]) -> float:
-        reach_reward = 1.0 - np.tanh(8.0 * info["reach_distance"])
-        reward = float(reach_reward)
+        """ManiSkill-style normalized dense reward for a pick-only task."""
+        reaching_reward = 1.0 - np.tanh(5.0 * info["reach_distance"])
+        dense_reward = float(reaching_reward)
 
         if info["is_grasped"]:
-            lift_progress = np.clip(info["lift_amount"] / self.lift_height, 0.0, 1.0)
-            reward = 2.0 + float(lift_progress)
+            dense_reward += 1.0
+            remaining_lift = max(self.lift_height - info["lift_amount"], 0.0)
+            lift_reward = 1.0 - np.tanh(5.0 * remaining_lift)
+            dense_reward += float(lift_reward)
 
-        reward -= 0.002 * float(np.sum(np.square(self._last_action_delta)))
         if info["success"]:
-            reward = 4.0
+            dense_reward = MAX_DENSE_REWARD
         if info["failure"]:
-            reward = -1.0
-        return reward
+            return -1.0
+        return dense_reward / MAX_DENSE_REWARD
 
     def _restore_nominal_model_parameters(self) -> None:
         self.model.body_mass[:] = self._nominal_body_mass

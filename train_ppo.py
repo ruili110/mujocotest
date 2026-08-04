@@ -26,6 +26,9 @@ class TaskMetricsCallback(BaseCallback):
     def __init__(self, window_size: int = 100) -> None:
         super().__init__()
         self.successes = deque(maxlen=window_size)
+        self.grasps = deque(maxlen=window_size)
+        self.left_contacts = deque(maxlen=window_size)
+        self.right_contacts = deque(maxlen=window_size)
         self.reach_distances = deque(maxlen=window_size)
         self.lift_amounts = deque(maxlen=window_size)
 
@@ -34,11 +37,26 @@ class TaskMetricsCallback(BaseCallback):
             if not done:
                 continue
             self.successes.append(float(info.get("success", False)))
+            self.grasps.append(float(info.get("grasp_once", False)))
+            self.left_contacts.append(float(info.get("left_contact_once", False)))
+            self.right_contacts.append(float(info.get("right_contact_once", False)))
             self.reach_distances.append(float(info.get("reach_distance", 0.0)))
             self.lift_amounts.append(float(info.get("lift_amount", 0.0)))
 
         if self.successes:
             self.logger.record("task/success_rate", sum(self.successes) / len(self.successes))
+            self.logger.record(
+                "task/grasp_once_rate",
+                sum(self.grasps) / len(self.grasps),
+            )
+            self.logger.record(
+                "task/left_contact_once_rate",
+                sum(self.left_contacts) / len(self.left_contacts),
+            )
+            self.logger.record(
+                "task/right_contact_once_rate",
+                sum(self.right_contacts) / len(self.right_contacts),
+            )
             self.logger.record(
                 "task/final_reach_distance",
                 sum(self.reach_distances) / len(self.reach_distances),
@@ -145,7 +163,17 @@ def main() -> None:
         seed=args.seed,
         monitor_dir=str(monitor_dir),
         monitor_kwargs={
-            "info_keywords": ("success", "is_grasped", "reach_distance", "lift_amount")
+            "info_keywords": (
+                "success",
+                "is_grasped",
+                "grasp_once",
+                "left_contact_once",
+                "right_contact_once",
+                "reach_distance",
+                "lift_amount",
+                "lift_target_reached",
+                "success_hold_count",
+            ),
         },
     )
     eval_env = None

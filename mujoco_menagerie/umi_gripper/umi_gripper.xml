@@ -78,7 +78,7 @@
 
       <!-- Gripper Camera -->
       <camera name="gripper_gopro" pos="0 -0.092 0.04" quat="0 1 0 0" mode="fixed" fovy="155"/>
-      <site name="ee_site" pos="0 0.12 0" size="0.008" rgba="0.1 0.8 0.1 0.8"/>
+      <site name="ee_site" pos="0 0.003 0.138921" size="0.008" rgba="0.1 0.8 0.1 0.8"/>
 
       <!-- Positional Joints -->
       <joint name="gripper_joint_x" axis="1 0 0" class="gripper_slide"/>
