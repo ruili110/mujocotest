@@ -26,6 +26,18 @@ GRIPPER_CAMERA_NAME = "gripper_gopro"
 
 PANDA_JOINT_NAMES = tuple(f"panda/joint{i}" for i in range(1, 8))
 PANDA_ACTUATOR_NAMES = tuple(f"panda/actuator{i}" for i in range(1, 8))
+PANDA_HOME_QPOS = np.array(
+    [
+        -0.01617866471870486,
+        -0.3351507979411188,
+        0.11335772886207839,
+        -1.3269075321321429,
+        0.021510896893726657,
+        0.7344821652580072,
+        0.8923453157986305,
+    ],
+    dtype=np.float64,
+)
 FINGER_JOINT_NAMES = (
     "panda/umi_gripper/left_finger_joint",
     "panda/umi_gripper/right_finger_joint",
@@ -286,18 +298,8 @@ def set_initial_pose(
     gripper_opening: float = 0.03,
     camera: CameraConfig = CameraConfig(),
 ) -> None:
-    home_arm = {
-        # Terminal pose from "Demeter_Exp1 - new pos.task" (Pose 2).
-        "panda/joint1": -0.01617866471870486,
-        "panda/joint2": -0.3351507979411188,
-        "panda/joint3": 0.11335772886207839,
-        "panda/joint4": -1.3269075321321429,
-        "panda/joint5": 0.021510896893726657,
-        "panda/joint6": 0.7344821652580072,
-        "panda/joint7": 0.8923453157986305,
-    }
-
-    for joint_name, value in home_arm.items():
+    # Terminal pose from "Demeter_Exp1 - new pos.task" (Pose 2).
+    for joint_name, value in zip(PANDA_JOINT_NAMES, PANDA_HOME_QPOS):
         physics.named.data.qpos[joint_name] = value
 
     for actuator_name, joint_name in zip(PANDA_ACTUATOR_NAMES, PANDA_JOINT_NAMES):

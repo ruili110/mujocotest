@@ -10,6 +10,9 @@ from stable_baselines3 import PPO
 from weed_pick_env import WeedPickEnv
 
 
+RESET_PAUSE_SECONDS = 0.5
+
+
 class VideoRecorder:
     """Record an external-camera view of a WeedPickEnv rollout."""
 
@@ -22,7 +25,7 @@ class VideoRecorder:
 
         width = 640
         height = 480
-        fps = max(round(1.0 / env.control_dt), 1)
+        self.fps = max(round(1.0 / env.control_dt), 1)
         self.renderer = mujoco.Renderer(env.model, height=height, width=width)
         self.camera = mujoco.MjvCamera()
         mujoco.mjv_defaultFreeCamera(env.model, self.camera)
@@ -35,17 +38,19 @@ class VideoRecorder:
         self.writer = cv2.VideoWriter(
             str(self.output_path),
             fourcc,
-            fps,
+            self.fps,
             (width, height),
         )
         if not self.writer.isOpened():
             self.renderer.close()
             raise RuntimeError(f"Could not open video output {self.output_path}")
 
-    def capture(self, env: WeedPickEnv) -> None:
+    def capture(self, env: WeedPickEnv, frame_count: int = 1) -> None:
         self.renderer.update_scene(env.data, camera=self.camera)
         rgb = self.renderer.render()
-        self.writer.write(self.cv2.cvtColor(rgb, self.cv2.COLOR_RGB2BGR))
+        bgr = self.cv2.cvtColor(rgb, self.cv2.COLOR_RGB2BGR)
+        for _ in range(frame_count):
+            self.writer.write(bgr)
 
     def close(self) -> None:
         self.writer.release()
@@ -88,7 +93,11 @@ def main() -> None:
         for episode in range(args.episodes):
             obs, _ = env.reset(seed=args.seed + episode)
             if recorder is not None:
-                recorder.capture(env)
+                reset_frame_count = max(
+                    round(RESET_PAUSE_SECONDS * recorder.fps),
+                    1,
+                )
+                recorder.capture(env, frame_count=reset_frame_count)
             episode_return = 0.0
             episode_length = 0
 

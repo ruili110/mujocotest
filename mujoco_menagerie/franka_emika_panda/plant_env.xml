@@ -20,28 +20,33 @@
               rgba="0 0 0 1" contype="1" conaffinity="1"/>
 
         <!-- 纯视觉花盆 + 隐藏的物理内胆 -->
-<<<<<<< HEAD
         <body name="pot" pos="0.5 0 0.3">
-            <freejoint/>
             <inertial pos="0 0 0.0375" mass="0.4" diaginertia="0.004751 0.000918 0.005294"/>
             <geom type="mesh" mesh="my_pot_mesh" material="my_pot_mat" contype="0" conaffinity="0"/>
-            <geom name="pot_collision" type="box" size="0.074 0.185 0.005" pos="0 0 0.005"
-                  rgba="1 0 0 0" contype="1" conaffinity="1"/>
-=======
-        <body name="pot" pos="0.5 0 0">
-            <freejoint name="pot_freejoint"/>
-            <inertial pos="0 0 0.05" mass="0.4" diaginertia="0.001 0.001 0.001"/>
-            <geom type="mesh" mesh="my_pot_mesh" material="my_pot_mat" contype="0" conaffinity="0"/>
-            <geom type="cylinder" size="0.035 0.0205" pos="0 0 0.0205" rgba="0.8 0.45 0.3 0" contype="1" conaffinity="1"/>
->>>>>>> e7e3270 (Proper weed resting+pot randomization)
+            <!-- Floor and four tapered walls leave the pot cavity open to the gripper. -->
+            <geom name="pot_collision" type="box" size="0.05 0.125 0.001" pos="0 0 0.001"
+                  rgba="1 0 0 1" contype="1" conaffinity="1"/>
+            <geom name="pot_wall_pos_x" type="box" size="0.003 0.185 0.03848"
+                  pos="0.05915 0 0.0375" euler="0 0.3171 0"
+                  rgba="1 0 0 1" contype="1" conaffinity="1"/>
+            <geom name="pot_wall_neg_x" type="box" size="0.003 0.185 0.03848"
+                  pos="-0.05915 0 0.0375" euler="0 -0.3171 0"
+                  rgba="1 0 0 1" contype="1" conaffinity="1"/>
+            <geom name="pot_wall_pos_y" type="box" size="0.074 0.0075 0.04416"
+                  pos="0 0.1495 0.0375" euler="-0.7469 0 0"
+                  rgba="1 0 0 1" contype="1" conaffinity="1"/>
+            <geom name="pot_wall_neg_y" type="box" size="0.074 0.0075 0.04416"
+                  pos="0 -0.1495 0.0375" euler="0.7469 0 0"
+                  rgba="1 0 0 1" contype="1" conaffinity="1"/>
         </body>
 
         <!-- 纯视觉植物 + 隐藏的物理抓取胶囊体 -->
-        <body name="plant" pos="0.5 0 0.166">
+        <body name="plant" pos="0.5 0 0.4268">
             <freejoint name="weed_freejoint"/>
             <inertial pos="0 0 0.05" mass="0.1" diaginertia="0.0005 0.0005 0.0005"/>
-            <geom type="mesh" mesh="my_plant_mesh" material="my_plant_mat" euler="1.5708 0 0" contype="0" conaffinity="0"/>
-            <geom name="weed_geom" type="capsule" size="0.008 0.025" pos="0 0 -0.05" rgba="1 1 1 0" contype="1" conaffinity="1"/>
+            <geom type="mesh" mesh="my_plant_mesh" material="my_plant_mat" pos="0 0 0.0522" euler="1.5708 0 0" contype="0" conaffinity="0"/>
+            <geom name="weed_geom" type="capsule" size="0.012" fromto="0 0 0.03 0 0 -0.05"
+                  rgba="1 1 1 1" contype="1" conaffinity="1"/>
             <geom name="weed_root" type="cylinder" size="0.022 0.005" pos="0 0 -0.12" rgba="1 1 1 0" contype="1" conaffinity="1"/>
         </body>
     </worldbody>

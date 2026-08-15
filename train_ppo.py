@@ -13,6 +13,7 @@ from stable_baselines3.common.callbacks import (
 )
 from stable_baselines3.common.env_util import make_vec_env
 
+from trajectory_dataset import SuccessfulTrajectoryCallback
 from weed_pick_env import WeedPickEnv, run_env_checks
 
 
@@ -27,6 +28,7 @@ class TaskMetricsCallback(BaseCallback):
         super().__init__()
         self.successes = deque(maxlen=window_size)
         self.grasps = deque(maxlen=window_size)
+        self.clearances = deque(maxlen=window_size)
         self.left_contacts = deque(maxlen=window_size)
         self.right_contacts = deque(maxlen=window_size)
         self.reach_distances = deque(maxlen=window_size)
@@ -38,6 +40,9 @@ class TaskMetricsCallback(BaseCallback):
                 continue
             self.successes.append(float(info.get("success", False)))
             self.grasps.append(float(info.get("grasp_once", False)))
+            self.clearances.append(
+                float(info.get("weed_clears_pot_once", False))
+            )
             self.left_contacts.append(float(info.get("left_contact_once", False)))
             self.right_contacts.append(float(info.get("right_contact_once", False)))
             self.reach_distances.append(float(info.get("reach_distance", 0.0)))
@@ -48,6 +53,10 @@ class TaskMetricsCallback(BaseCallback):
             self.logger.record(
                 "task/grasp_once_rate",
                 sum(self.grasps) / len(self.grasps),
+            )
+            self.logger.record(
+                "task/weed_clears_pot_once_rate",
+                sum(self.clearances) / len(self.clearances),
             )
             self.logger.record(
                 "task/left_contact_once_rate",
@@ -71,9 +80,12 @@ class TaskMetricsCallback(BaseCallback):
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train PPO on the Franka weed-picking task.")
     parser.add_argument("--timesteps", type=int, default=1_000_000)
-    parser.add_argument("--n-envs", type=int, default=4)
-    parser.add_argument("--n-steps", type=int, default=1024)
-    parser.add_argument("--batch-size", type=int, default=256)
+    parser.add_argument("--n-envs", type=int, default=8)
+    parser.add_argument("--n-steps", type=int, default=128)
+    parser.add_argument("--batch-size", type=int, default=128)
+    parser.add_argument("--learning-rate", type=float, default=1e-4)
+    parser.add_argument("--n-epochs", type=int, default=5)
+    parser.add_argument("--target-kl", type=float, default=0.03)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--device", default="cpu", help="SB3 device: cpu, cuda, or auto.")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
@@ -85,6 +97,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--wandb-project", default=None, help="Enable W&B with this project name.")
     parser.add_argument("--wandb-entity", default=None, help="Optional W&B team or username.")
     parser.add_argument("--wandb-name", default=None, help="Optional W&B run name.")
+    parser.add_argument(
+        "--successful-trajectories-dir",
+        type=Path,
+        default=None,
+        help=(
+            "Camera-free successful trajectory dataset directory. Defaults to "
+            "<output-dir>/successful_trajectories."
+        ),
+    )
+    parser.add_argument(
+        "--no-save-successful-trajectories",
+        action="store_true",
+        help="Disable successful trajectory collection.",
+    )
     parser.add_argument(
         "--wandb-save-code",
         action="store_true",
@@ -100,11 +126,6 @@ def parse_args() -> argparse.Namespace:
 
 
 def validate_args(args: argparse.Namespace) -> None:
-    if args.timesteps < 1:
-        raise ValueError("--timesteps must be positive.")
-    if args.n_envs < 1 or args.n_steps < 2:
-        raise ValueError("--n-envs must be positive and --n-steps must be at least 2.")
-
     rollout_size = args.n_envs * args.n_steps
     if args.batch_size < 2 or rollout_size % args.batch_size != 0:
         raise ValueError(
@@ -170,8 +191,18 @@ def main() -> None:
                 "left_contact_once",
                 "right_contact_once",
                 "reach_distance",
+                "target_distance",
+                "target_reached",
+                "robot_speed",
+                "is_robot_static",
                 "lift_amount",
-                "lift_target_reached",
+                "weed_clears_pot",
+                "weed_clears_pot_once",
+                "target_reached_once",
+                "left_grasp_force",
+                "right_grasp_force",
+                "left_grasp_force_angle",
+                "right_grasp_force_angle",
                 "success_hold_count",
             ),
         },
@@ -179,6 +210,14 @@ def main() -> None:
     eval_env = None
 
     callbacks = [TaskMetricsCallback()]
+    if not args.no_save_successful_trajectories:
+        trajectory_dir = (
+            args.successful_trajectories_dir.expanduser().resolve()
+            if args.successful_trajectories_dir is not None
+            else (output_dir / "successful_trajectories").resolve()
+        )
+        callbacks.append(SuccessfulTrajectoryCallback(trajectory_dir))
+
     if wandb_run is not None:
         from wandb.integration.sb3 import WandbCallback
 
@@ -227,12 +266,14 @@ def main() -> None:
             model = PPO(
                 "MlpPolicy",
                 train_env,
-                learning_rate=3e-4,
+                learning_rate=args.learning_rate,
                 n_steps=args.n_steps,
                 batch_size=args.batch_size,
+                n_epochs=args.n_epochs,
                 gamma=0.99,
                 gae_lambda=0.95,
                 clip_range=0.2,
+                target_kl=args.target_kl,
                 ent_coef=0.0,
                 policy_kwargs={"net_arch": [256, 256]},
                 seed=args.seed,
