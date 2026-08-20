@@ -2,11 +2,24 @@
     <!-- 将角度设置为 degree，这样你之前的 euler="90 0 0" 才能正常生效 -->
     <compiler angle="radian" meshdir="assets" autolimits="true"/>
     <option integrator="implicitfast"/>
+    <!-- Native D405 color frame size used before farm resizes to 96x96. -->
+    <visual>
+        <global offwidth="848" offheight="480"/>
+        <!-- The real D405 observes an illuminated plant. Ambient camera light
+             keeps the thin, mostly vertical leaves green instead of black. -->
+        <headlight ambient="0.45 0.45 0.45" diffuse="0.65 0.65 0.65" specular="0.1 0.1 0.1"/>
+    </visual>
     
     <asset>
         <!-- 确保你的 stl 文件放在与此 xml 相同的目录或 assets 文件夹下 -->
-        <mesh name="my_pot_mesh" file="plant_pot.stl" scale="0.002 0.005 0.001"/>
-        <mesh name="my_plant_mesh" file="plant.stl" scale="0.03 0.045 0.03"/>
+        <!-- plant_pot.stl bounds are 74 x 74 x 75 model units. These scales
+             produce an exact visible footprint/height of 18.5 x 34 x 10 cm. -->
+        <mesh name="my_pot_mesh" file="plant_pot.stl"
+              scale="0.0025 0.0045945945946 0.0013333333333"/>
+        <!-- plant.stl is rotated 90 degrees around X below, so mesh Y becomes
+             world height. The Y scale gives exactly 31 cm visible height;
+             the two horizontal scales retain the existing plant width. -->
+        <mesh name="my_plant_mesh" file="plant.stl" scale="0.03 0.055724011339 0.03"/>
         <material name="my_pot_mat" rgba="0.8 0.45 0.3 1"/>
         <material name="my_plant_mat" rgba="0.2 0.6 0.1 1"/>
     </asset>
@@ -15,27 +28,75 @@
         <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
         <geom type="plane" size="1 1 0.1" rgba="0.9 0.9 0.9 1"/>
 
-        <!-- 55 cm x 40 cm x 30 cm support box, centered below the pot -->
-        <geom name="support_box" type="box" pos="0.5 0 0.15" size="0.2 0.275 0.15"
-              rgba="0 0 0 1" contype="1" conaffinity="1"/>
-
-        <!-- 纯视觉花盆 + 隐藏的物理内胆 -->
-        <body name="pot" pos="0.5 0 0.3">
-            <freejoint/>
-            <inertial pos="0 0 0.0375" mass="0.4" diaginertia="0.004751 0.000918 0.005294"/>
-            <geom type="mesh" mesh="my_pot_mesh" material="my_pot_mat" contype="0" conaffinity="0"/>
-            <geom name="pot_collision" type="box" size="0.074 0.185 0.005" pos="0 0 0.005"
-                  rgba="1 0 0 0" contype="1" conaffinity="1"/>
+        <!-- Black support-box pose in world coordinates.
+             pos="x y z" is the box center in metres; euler="roll pitch yaw" is
+             its rotation in radians. World-axis dimensions are X=29 cm,
+             Y=38 cm, Z=30 cm (length is along Y, matching the pot);
+             MuJoCo box size stores half-lengths. Center z=0.15 puts its bottom
+             on the ground and its top at z=0.30 m. -->
+        <body name="support_box_body" pos="0.70 -0.03 0.15" euler="0 0 0">
+            <geom name="support_box" type="box" pos="0 0 0" size="0.145 0.19 0.15"
+                  rgba="0 0 0 1" contype="1" conaffinity="1"/>
         </body>
 
-        <!-- 纯视觉植物 + 隐藏的物理抓取胶囊体 -->
-        <body name="plant" pos="0.5 0 0.5">
-            <freejoint/> 
-            <inertial pos="0 0 0.05" mass="0.1" diaginertia="0.0005 0.0005 0.0005"/>
-            <geom type="mesh" mesh="my_plant_mesh" material="my_plant_mat" pos="0 0 0.0522"
+        <!-- Pot pose in world coordinates.
+             pos="x y z" is the pot body's origin in metres; euler is its initial
+             roll/pitch/yaw in radians. The free joint keeps the pot physical. -->
+        <!-- The pot is horizontally centered under the plant. Its mesh origin
+             is the bottom face, placed exactly on the support-box top. -->
+        <body name="pot" pos="0.70 -0.03 0.30" euler="0 0 0">
+            <freejoint name="pot_freejoint"/>
+            <inertial pos="0 0 0.05" mass="0.4"
+                      diaginertia="0.0041867 0.0014742 0.0049942"/>
+            <geom type="mesh" mesh="my_pot_mesh" material="my_pot_mat" contype="0" conaffinity="0"/>
+            <!-- Debug group 5 is visible in the third-person viewer but excluded
+                 from the policy camera, so collision inspection cannot alter inference. -->
+            <!-- Collision type 4 keeps normal contact with the root, gripper,
+                 support box and floor, but excludes only the full-height main
+                 plant capsule (type 2), which necessarily passes through the pot. -->
+            <geom name="pot_collision" type="box" size="0.0925 0.17 0.005" pos="0 0 0.005"
+                  group="3" rgba="1 0 0 0.4" contype="4" conaffinity="1"/>
+        </body>
+
+        <!-- Plant pose in world coordinates.
+             pos="x y z" is the plant body's origin in metres; euler is its
+             initial roll/pitch/yaw in radians. The free joint permits grasping.
+             The visible plant starts at the pot rim. The main capsule
+             overlaps the visible plant; a thin hidden stem inside the pot reaches
+             the bottom plate, so normal contact supports it without gravcomp. -->
+        <!-- x=0.70 keeps the plant 70 cm in front of the robot along X.
+             The shared center is y=-0.03, on the measured midpoint of both finger tips;
+             camera extrinsics independently reproduce the recorded image centroid. -->
+        <body name="plant" pos="0.70 -0.03 0.39" euler="0 0 0">
+            <!-- A small passive damping term suppresses numerical energy in the
+                 six free-body DOFs.  The plant remains fully movable/graspable. -->
+            <joint name="plant_freejoint" type="free" damping="0.01"/>
+            <!-- The root/soil assembly dominates the real object's mass, so its
+                 center of mass belongs near the pot bottom rather than in the leaves. -->
+            <inertial pos="0 0 -0.06" mass="0.01" diaginertia="0.0005 0.0005 0.0005"/>
+            <!-- Mesh bottom stays at world z=0.30 and its top is z=0.61,
+                 giving the requested exact 31 cm visible height. -->
+            <geom type="mesh" mesh="my_plant_mesh" material="my_plant_mat" pos="0 0 0.129385872861"
                   euler="1.5708 0 0" contype="0" conaffinity="0"/>
-            <geom name="plant_collision" type="capsule" size="0.015 0.06" pos="0 0 0"
-                  rgba="0 0.4 1 0" contype="1" conaffinity="1"/>
+            <!-- Main collision capsule spans the full visible plant height:
+                 total length 31 cm and diameter 1.5 cm. Its bottom and top exactly
+                 match the visible mesh at body z=-0.09/0.22. Group 5 makes only
+                 this main capsule visible in viewers, not in policy RGB. -->
+            <geom name="plant_collision" type="capsule" size="0.0075 0.1475" pos="0 0 0.065"
+                  group="5" rgba="0 0.4 1 0.45" contype="2" conaffinity="1"/>
+            <!-- Hidden support stem recalculated for the saved plant/pot spacing.
+                 Its lower surface meets the root and its upper surface overlaps
+                 the main capsule, without extending through the pot bottom. -->
+            <geom name="plant_support_collision" type="capsule" size="0.005 0.04"
+                  pos="0 0 -0.025" group="3" rgba="1 0 1 0.45" contype="1" conaffinity="1"/>
+            <!-- Hidden root/soil footprint inside the 18.5x34 cm pot bottom.
+                 It resists no vertical lift; it only reproduces passive planted
+                 stability while resting on the pot floor. -->
+            <!-- Root bottom is world z=0.31, exactly on top of the pot-bottom
+                 collision plate (pot z=0.30 plus its 1 cm thickness). -->
+            <geom name="plant_root_collision" type="box" size="0.075 0.14 0.005"
+                  pos="0 0 -0.075" group="3" rgba="1 0.8 0 0.45" friction="1 0.005 0.0001"
+                  contype="1" conaffinity="1"/>
         </body>
     </worldbody>
 </mujoco>

@@ -3,6 +3,10 @@
   <option impratio="10" integrator="implicitfast" cone="elliptic" noslip_iterations="2">
     <flag multiccd="enable"/>
   </option>
+  <visual>
+    <global offwidth="848" offheight="480"/>
+    <headlight ambient="0.45000000000000001 0.45000000000000001 0.45000000000000001" diffuse="0.65000000000000002 0.65000000000000002 0.65000000000000002" specular="0.10000000000000001 0.10000000000000001 0.10000000000000001"/>
+  </visual>
   <default>
     <default class="/"/>
     <default class="panda/">
@@ -79,8 +83,8 @@
     </default>
   </default>
   <asset>
-    <mesh name="my_pot_mesh" class="/" file="plant_pot-a9072d781a4e48fe21a4fab0da586005ff40c814.stl" scale="0.002 0.0050000000000000001 0.001"/>
-    <mesh name="my_plant_mesh" class="/" file="plant-ecf4f357d6be8583010ba87097a14a9eb4fbea8b.stl" scale="0.029999999999999999 0.044999999999999998 0.029999999999999999"/>
+    <mesh name="my_pot_mesh" class="/" file="plant_pot-a9072d781a4e48fe21a4fab0da586005ff40c814.stl" scale="0.0025000000000000001 0.0045945945945999999 0.0013333333332999999"/>
+    <mesh name="my_plant_mesh" class="/" file="plant-ecf4f357d6be8583010ba87097a14a9eb4fbea8b.stl" scale="0.029999999999999999 0.055724011338999999 0.029999999999999999"/>
     <material name="my_pot_mat" class="/" rgba="0.80000000000000004 0.45000000000000001 0.29999999999999999 1"/>
     <material name="my_plant_mat" class="/" rgba="0.20000000000000001 0.59999999999999998 0.10000000000000001 1"/>
     <material name="panda/white" class="panda/panda" rgba="1 1 1 1"/>
@@ -174,18 +178,22 @@
   <worldbody>
     <light name="//unnamed_light_0" class="/" directional="true" pos="0 0 1.5" dir="0 0 -1"/>
     <geom name="//unnamed_geom_0" class="/" type="plane" size="1 1 0.10000000000000001" rgba="0.90000000000000002 0.90000000000000002 0.90000000000000002 1"/>
-    <geom name="support_box" class="/" type="box" contype="1" conaffinity="1" size="0.20000000000000001 0.27500000000000002 0.14999999999999999" rgba="0 0 0 1" pos="0.5 0 0.14999999999999999"/>
-    <body name="pot" pos="0.5 0 0.29999999999999999">
-      <freejoint name="//unnamed_joint_0"/>
-      <inertial pos="0 0 0.037499999999999999" mass="0.40000000000000002" diaginertia="0.004751 0.00091799999999999998 0.0052940000000000001"/>
-      <geom name="//unnamed_geom_2" class="/" type="mesh" contype="0" conaffinity="0" material="my_pot_mat" mesh="my_pot_mesh"/>
-      <geom name="pot_collision" class="/" type="box" contype="1" conaffinity="1" size="0.073999999999999996 0.185 0.0050000000000000001" rgba="1 0 0 0" pos="0 0 0.0050000000000000001"/>
+    <body name="support_box_body" pos="0.69999999999999996 -0.029999999999999999 0.14999999999999999" euler="0 0 0">
+      <geom name="support_box" class="/" type="box" contype="1" conaffinity="1" size="0.14499999999999999 0.19 0.14999999999999999" rgba="0 0 0 1" pos="0 0 0"/>
     </body>
-    <body name="plant" pos="0.5 0 0.5">
-      <freejoint name="//unnamed_joint_1"/>
-      <inertial pos="0 0 0.050000000000000003" mass="0.10000000000000001" diaginertia="0.00050000000000000001 0.00050000000000000001 0.00050000000000000001"/>
-      <geom name="//unnamed_geom_4" class="/" type="mesh" contype="0" conaffinity="0" material="my_plant_mat" pos="0 0 0.052200000000000003" euler="1.5708 0 0" mesh="my_plant_mesh"/>
-      <geom name="plant_collision" class="/" type="capsule" contype="1" conaffinity="1" size="0.014999999999999999 0.059999999999999998" rgba="0 0.40000000000000002 1 0" pos="0 0 0"/>
+    <body name="pot" pos="0.69999999999999996 -0.029999999999999999 0.29999999999999999" euler="0 0 0">
+      <freejoint name="pot_freejoint"/>
+      <inertial pos="0 0 0.050000000000000003" mass="0.40000000000000002" diaginertia="0.0041866999999999998 0.0014741999999999999 0.0049941999999999999"/>
+      <geom name="//unnamed_geom_2" class="/" type="mesh" contype="0" conaffinity="0" material="my_pot_mat" mesh="my_pot_mesh"/>
+      <geom name="pot_collision" class="/" type="box" contype="4" conaffinity="1" group="3" size="0.092499999999999999 0.17000000000000001 0.0050000000000000001" rgba="1 0 0 0.40000000000000002" pos="0 0 0.0050000000000000001"/>
+    </body>
+    <body name="plant" pos="0.69999999999999996 -0.029999999999999999 0.39000000000000001" euler="0 0 0">
+      <joint name="plant_freejoint" class="/" type="free" damping="0.01"/>
+      <inertial pos="0 0 -0.059999999999999998" mass="0.01" diaginertia="0.00050000000000000001 0.00050000000000000001 0.00050000000000000001"/>
+      <geom name="//unnamed_geom_4" class="/" type="mesh" contype="0" conaffinity="0" material="my_plant_mat" pos="0 0 0.12938587286100001" euler="1.5708 0 0" mesh="my_plant_mesh"/>
+      <geom name="plant_collision" class="/" type="capsule" contype="2" conaffinity="1" group="5" size="0.0074999999999999997 0.14749999999999999" rgba="0 0.40000000000000002 1 0.45000000000000001" pos="0 0 0.065000000000000002"/>
+      <geom name="plant_support_collision" class="/" type="capsule" contype="1" conaffinity="1" group="3" size="0.0050000000000000001 0.040000000000000001" rgba="1 0 1 0.45000000000000001" pos="0 0 -0.025000000000000001"/>
+      <geom name="plant_root_collision" class="/" type="box" contype="1" conaffinity="1" group="3" size="0.074999999999999997 0.14000000000000001 0.0050000000000000001" rgba="1 0.80000000000000004 0 0.45000000000000001" friction="1 0.0050000000000000001 0.0001" pos="0 0 -0.074999999999999997"/>
     </body>
     <site name="arm_base" class="/" pos="0 0 0"/>
     <body pos="0 0 0" name="panda/">
@@ -272,10 +280,9 @@
                       <geom name="panda//unnamed_geom_56" class="panda/visual" material="panda/black" mesh="panda/link7_6"/>
                       <geom name="panda//unnamed_geom_57" class="panda/visual" material="panda/white" mesh="panda/link7_7"/>
                       <geom name="panda//unnamed_geom_58" class="panda/collision" mesh="panda/link7_c"/>
-                      <site name="panda/gripper_mount" pos="0 0 0.29999999999999999" euler="0 3.1415926535897931 2.6000000000000001"/>
-                      <body pos="0 0 0.29999999999999999" euler="0 3.1415926535897931 2.6000000000000001" name="panda/umi_gripper/">
+                      <site name="panda/gripper_mount" pos="0.0050000000000000001 -0.01 0.23000000000000001" quat="5.7290428994315953e-17 -0.93562370855341781 -0.35299897449248957 2.1614953210726279e-17"/>
+                      <body pos="0.0050000000000000001 -0.01 0.23000000000000001" quat="5.7290428994315953e-17 -0.93562370855341781 -0.35299897449248957 2.1614953210726279e-17" name="panda/umi_gripper/">
                         <body name="panda/umi_gripper//unnamed_body_0" pos="0 0 0.11" quat="-1 1 0 0">
-                          <camera name="panda/umi_gripper/gripper_gopro" class="panda/umi_gripper/" mode="fixed" fovy="155" pos="0 -0.091999999999999998 0.040000000000000001" quat="0 1 0 0"/>
                           <geom name="panda/umi_gripper/linear_guide_rail" class="panda/umi_gripper/visual" type="box" size="0.080000000000000002 0.0030000000000000001 0.0040000000000000001" material="panda/umi_gripper/light_gray" pos="0 -0.002 0.062"/>
                           <geom name="panda/umi_gripper/left_mirror" class="panda/umi_gripper/visual" type="box" size="0.029999999999999999 0.018700000000000001 0.0001" material="panda/umi_gripper/mirror" pos="-0.069000000000000006 -0.057000000000000002 0.040000000000000001" quat="0.82799999999999996 0 0.5605 0"/>
                           <geom name="panda/umi_gripper/right_mirror" class="panda/umi_gripper/visual" type="box" size="0.029999999999999999 0.018700000000000001 0.0001" material="panda/umi_gripper/mirror" pos="0.069000000000000006 -0.057000000000000002 0.040000000000000001" quat="0.82799999999999996 0 -0.5605 0"/>
@@ -319,10 +326,13 @@
                             <joint name="panda/umi_gripper/input_camera_roll" class="panda/umi_gripper/" type="hinge" axis="1 0 0" range="-1.5700000000000001 1.5700000000000001" damping="0.10000000000000001"/>
                             <joint name="panda/umi_gripper/input_camera_pitch" class="panda/umi_gripper/" type="hinge" axis="0 1 0" range="-1.5700000000000001 1.5700000000000001" damping="0.10000000000000001"/>
                             <joint name="panda/umi_gripper/input_camera_yaw" class="panda/umi_gripper/" type="hinge" axis="0 0 1" range="-3.1400000000000001 3.1400000000000001" damping="0.10000000000000001"/>
-                            <camera name="panda/umi_gripper/input_camera" class="panda/umi_gripper/" mode="fixed" fovy="80" pos="0 0 0" quat="0 1 0 0"/>
+                            <camera name="panda/umi_gripper/input_camera" class="panda/umi_gripper/" mode="fixed" fovy="58" pos="0 0 0" quat="0 1 0 0"/>
                             <geom name="panda/umi_gripper/input_camera_marker" class="panda/umi_gripper/" type="box" contype="0" conaffinity="0" group="1" size="0.017999999999999999 0.012 0.012" rgba="0.10000000000000001 0.34999999999999998 1 0.75" density="0" pos="0 0 0"/>
                             <geom name="panda/umi_gripper/input_camera_forward_marker" class="panda/umi_gripper/" type="capsule" contype="0" conaffinity="0" group="1" size="0.0030000000000000001" rgba="1 0.20000000000000001 0.10000000000000001 0.84999999999999998" density="0" fromto="0 0 0 0 -0.040000000000000001 0"/>
                           </body>
+                        </body>
+                        <body name="panda/umi_gripper/farm_payload_mass_correction" pos="0.086722999999999995 -0.099565379999999995 -0.01512873">
+                          <inertial pos="0 0 0" mass="0.72562797799553413" diaginertia="0.0001 0.0001 0.0001"/>
                         </body>
                       </body>
                     </body>
@@ -333,6 +343,102 @@
           </body>
         </body>
       </body>
+    </body>
+    <body name="scene_support_box_x_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_support_box_x_control_joint" class="/" type="slide" axis="1 0 0" range="-1 1" damping="1"/>
+    </body>
+    <body name="scene_support_box_y_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_support_box_y_control_joint" class="/" type="slide" axis="1 0 0" range="-1 1" damping="1"/>
+    </body>
+    <body name="scene_support_box_z_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_support_box_z_control_joint" class="/" type="slide" axis="1 0 0" range="-1 1" damping="1"/>
+    </body>
+    <body name="scene_support_box_roll_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_support_box_roll_control_joint" class="/" type="hinge" axis="1 0 0" range="-3.1415926535897931 3.1415926535897931" damping="1"/>
+    </body>
+    <body name="scene_support_box_pitch_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_support_box_pitch_control_joint" class="/" type="hinge" axis="1 0 0" range="-3.1415926535897931 3.1415926535897931" damping="1"/>
+    </body>
+    <body name="scene_support_box_yaw_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_support_box_yaw_control_joint" class="/" type="hinge" axis="1 0 0" range="-3.1415926535897931 3.1415926535897931" damping="1"/>
+    </body>
+    <body name="scene_pot_x_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_pot_x_control_joint" class="/" type="slide" axis="1 0 0" range="-1 1" damping="1"/>
+    </body>
+    <body name="scene_pot_y_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_pot_y_control_joint" class="/" type="slide" axis="1 0 0" range="-1 1" damping="1"/>
+    </body>
+    <body name="scene_pot_z_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_pot_z_control_joint" class="/" type="slide" axis="1 0 0" range="-1 1" damping="1"/>
+    </body>
+    <body name="scene_pot_roll_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_pot_roll_control_joint" class="/" type="hinge" axis="1 0 0" range="-3.1415926535897931 3.1415926535897931" damping="1"/>
+    </body>
+    <body name="scene_pot_pitch_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_pot_pitch_control_joint" class="/" type="hinge" axis="1 0 0" range="-3.1415926535897931 3.1415926535897931" damping="1"/>
+    </body>
+    <body name="scene_pot_yaw_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_pot_yaw_control_joint" class="/" type="hinge" axis="1 0 0" range="-3.1415926535897931 3.1415926535897931" damping="1"/>
+    </body>
+    <body name="scene_plant_x_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_plant_x_control_joint" class="/" type="slide" axis="1 0 0" range="-1 1" damping="1"/>
+    </body>
+    <body name="scene_plant_y_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_plant_y_control_joint" class="/" type="slide" axis="1 0 0" range="-1 1" damping="1"/>
+    </body>
+    <body name="scene_plant_z_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_plant_z_control_joint" class="/" type="slide" axis="1 0 0" range="-1 1" damping="1"/>
+    </body>
+    <body name="scene_plant_roll_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_plant_roll_control_joint" class="/" type="hinge" axis="1 0 0" range="-3.1415926535897931 3.1415926535897931" damping="1"/>
+    </body>
+    <body name="scene_plant_pitch_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_plant_pitch_control_joint" class="/" type="hinge" axis="1 0 0" range="-3.1415926535897931 3.1415926535897931" damping="1"/>
+    </body>
+    <body name="scene_plant_yaw_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_plant_yaw_control_joint" class="/" type="hinge" axis="1 0 0" range="-3.1415926535897931 3.1415926535897931" damping="1"/>
+    </body>
+    <body name="scene_gripper_mount_x_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_gripper_mount_x_control_joint" class="/" type="slide" axis="1 0 0" range="-0.10000000000000001 0.10000000000000001" damping="1"/>
+    </body>
+    <body name="scene_gripper_mount_y_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_gripper_mount_y_control_joint" class="/" type="slide" axis="1 0 0" range="-0.10000000000000001 0.10000000000000001" damping="1"/>
+    </body>
+    <body name="scene_gripper_mount_z_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_gripper_mount_z_control_joint" class="/" type="slide" axis="1 0 0" range="0.17999999999999999 0.34999999999999998" damping="1"/>
+    </body>
+    <body name="scene_gripper_mount_roll_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_gripper_mount_roll_control_joint" class="/" type="hinge" axis="1 0 0" range="-3.1415926535897931 3.1415926535897931" damping="1"/>
+    </body>
+    <body name="scene_gripper_mount_pitch_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_gripper_mount_pitch_control_joint" class="/" type="hinge" axis="1 0 0" range="-3.1415926535897931 3.1415926535897931" damping="1"/>
+    </body>
+    <body name="scene_gripper_mount_yaw_control_body" pos="0 0 -2" gravcomp="1">
+      <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
+      <joint name="scene_gripper_mount_yaw_control_joint" class="/" type="hinge" axis="1 0 0" range="-3.1415926535897931 3.1415926535897931" damping="1"/>
     </body>
   </worldbody>
   <contact>
@@ -345,6 +451,30 @@
     </fixed>
   </tendon>
   <actuator>
+    <position name="scene_support_box_x" class="/" ctrlrange="-1 1" joint="scene_support_box_x_control_joint" kp="1"/>
+    <position name="scene_support_box_y" class="/" ctrlrange="-1 1" joint="scene_support_box_y_control_joint" kp="1"/>
+    <position name="scene_support_box_z" class="/" ctrlrange="-1 1" joint="scene_support_box_z_control_joint" kp="1"/>
+    <position name="scene_support_box_roll" class="/" ctrlrange="-3.1415926535897931 3.1415926535897931" joint="scene_support_box_roll_control_joint" kp="1"/>
+    <position name="scene_support_box_pitch" class="/" ctrlrange="-3.1415926535897931 3.1415926535897931" joint="scene_support_box_pitch_control_joint" kp="1"/>
+    <position name="scene_support_box_yaw" class="/" ctrlrange="-3.1415926535897931 3.1415926535897931" joint="scene_support_box_yaw_control_joint" kp="1"/>
+    <position name="scene_pot_x" class="/" ctrlrange="-1 1" joint="scene_pot_x_control_joint" kp="1"/>
+    <position name="scene_pot_y" class="/" ctrlrange="-1 1" joint="scene_pot_y_control_joint" kp="1"/>
+    <position name="scene_pot_z" class="/" ctrlrange="-1 1" joint="scene_pot_z_control_joint" kp="1"/>
+    <position name="scene_pot_roll" class="/" ctrlrange="-3.1415926535897931 3.1415926535897931" joint="scene_pot_roll_control_joint" kp="1"/>
+    <position name="scene_pot_pitch" class="/" ctrlrange="-3.1415926535897931 3.1415926535897931" joint="scene_pot_pitch_control_joint" kp="1"/>
+    <position name="scene_pot_yaw" class="/" ctrlrange="-3.1415926535897931 3.1415926535897931" joint="scene_pot_yaw_control_joint" kp="1"/>
+    <position name="scene_plant_x" class="/" ctrlrange="-1 1" joint="scene_plant_x_control_joint" kp="1"/>
+    <position name="scene_plant_y" class="/" ctrlrange="-1 1" joint="scene_plant_y_control_joint" kp="1"/>
+    <position name="scene_plant_z" class="/" ctrlrange="-1 1" joint="scene_plant_z_control_joint" kp="1"/>
+    <position name="scene_plant_roll" class="/" ctrlrange="-3.1415926535897931 3.1415926535897931" joint="scene_plant_roll_control_joint" kp="1"/>
+    <position name="scene_plant_pitch" class="/" ctrlrange="-3.1415926535897931 3.1415926535897931" joint="scene_plant_pitch_control_joint" kp="1"/>
+    <position name="scene_plant_yaw" class="/" ctrlrange="-3.1415926535897931 3.1415926535897931" joint="scene_plant_yaw_control_joint" kp="1"/>
+    <position name="scene_gripper_mount_x" class="/" ctrlrange="-0.10000000000000001 0.10000000000000001" joint="scene_gripper_mount_x_control_joint" kp="1"/>
+    <position name="scene_gripper_mount_y" class="/" ctrlrange="-0.10000000000000001 0.10000000000000001" joint="scene_gripper_mount_y_control_joint" kp="1"/>
+    <position name="scene_gripper_mount_z" class="/" ctrlrange="0.17999999999999999 0.34999999999999998" joint="scene_gripper_mount_z_control_joint" kp="1"/>
+    <position name="scene_gripper_mount_roll" class="/" ctrlrange="-3.1415926535897931 3.1415926535897931" joint="scene_gripper_mount_roll_control_joint" kp="1"/>
+    <position name="scene_gripper_mount_pitch" class="/" ctrlrange="-3.1415926535897931 3.1415926535897931" joint="scene_gripper_mount_pitch_control_joint" kp="1"/>
+    <position name="scene_gripper_mount_yaw" class="/" ctrlrange="-3.1415926535897931 3.1415926535897931" joint="scene_gripper_mount_yaw_control_joint" kp="1"/>
     <general name="panda/actuator1" class="panda/panda" joint="panda/joint1" gainprm="4500" biasprm="0 -4500 -450"/>
     <general name="panda/actuator2" class="panda/panda" ctrlrange="-1.7627999999999999 1.7627999999999999" joint="panda/joint2" gainprm="4500" biasprm="0 -4500 -450"/>
     <general name="panda/actuator3" class="panda/panda" joint="panda/joint3" gainprm="3500" biasprm="0 -3500 -350"/>

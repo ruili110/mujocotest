@@ -1,0 +1,81 @@
+{
+  "model": {
+    "mode": "green_center",
+    "checkpoints": {
+      "green_center": "C:/Users/Lirui/Desktop/demeter/030000/pretrained_model",
+      "resnet18": "C:/Users/Lirui/Desktop/demeter/050000/pretrained_model"
+    },
+    "lerobot_source": "C:/Users/Lirui/Desktop/TUDarmstadt/farm/src/imitator/lerobot",
+    "reference_code_dir": "C:/Users/Lirui/Desktop/testdemeter"
+  },
+  "runtime": {
+    "steps": 500,
+    "control_hz": 7.0,
+    "arm_command_ramp_fraction": 0.2,
+    "realtime": true,
+    "viewer": true,
+    "export_merged_xml": true,
+    "log_every_steps": 1
+  },
+  "camera": {
+    "width": 822,
+    "height": 480,
+    "fovy_degrees": 58.0,
+    "xyz": [-5.935802852939265e-7, -0.09, 0.026],
+    "rpy": [-0.518, 0.0, 0.0],
+    "third_person": {
+      "lookat": [0.25, 0.0, 0.55],
+      "azimuth_degrees": 180.0,
+      "elevation_degrees": -15.0,
+      "distance": 1.55
+    }
+  },
+  "scene": {
+    "support_box": {
+      "xyz": [0.7, -0.03, 0.15],
+      "rpy": [0.0, 0.0, 0.0]
+    },
+    "pot": {
+      "xyz": [0.7, -0.03, 0.3],
+      "rpy": [0.0, 0.0, 0.0]
+    },
+    "plant": {
+      "xyz": [0.7, -0.03, 0.39],
+      "rpy": [0.0, 0.0, 0.0]
+    },
+    "gripper_mount": {
+      "xyz": [0.005, -0.010, 0.23],
+      "rpy": [0.0, 0.0, -1.5707963267948966]
+    }
+  },
+  "gripper": {
+    "initial_joint": 0.0006463986747622316,
+    "invert_joint": true,
+    "joint_max": 0.05,
+    "width_scale": 6965.1416015625,
+    "width_offset": 183.75,
+    "closure_loop": {
+      "enabled": true,
+      "trigger_opening_metres": 0.025,
+      "closed_opening_metres": 0.0
+    }
+  },
+  "ik": {
+    "max_function_evaluations": 200,
+    "ftol": 1e-9,
+    "xtol": 1e-9,
+    "gtol": 1e-9,
+    "accept_position_error_metres": 0.001,
+    "accept_rotation_error_radians": 0.001
+  },
+  "visualization": {
+    "enabled": true,
+    "display_window": true,
+    "window_name": "Diffusion inference: input, vision, state and action",
+    "image_scale": 4,
+    "save_frames": false,
+    "save_directory": "inference_visualization",
+    "show_green_mask_for_green_center": true,
+    "quit_key": "q"
+  }
+}
