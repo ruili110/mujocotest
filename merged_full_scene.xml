@@ -188,7 +188,7 @@
       <freejoint name="weed_freejoint"/>
       <inertial pos="0 0 0.050000000000000003" mass="0.10000000000000001" diaginertia="0.00050000000000000001 0.00050000000000000001 0.00050000000000000001"/>
       <geom name="//unnamed_geom_8" class="/" type="mesh" contype="0" conaffinity="0" material="my_plant_mat" pos="0 0 0.052200000000000003" euler="1.5708 0 0" mesh="my_plant_mesh"/>
-      <geom name="weed_geom" class="/" type="capsule" contype="1" conaffinity="1" size="0.012" rgba="1 1 1 1" fromto="0 0 0.029999999999999999 0 0 -0.050000000000000003"/>
+      <geom name="weed_geom" class="/" type="capsule" contype="1" conaffinity="1" size="0.0070000000000000001" rgba="1 1 1 1" fromto="0 0 0.029999999999999999 0 0 -0.050000000000000003"/>
       <geom name="weed_root" class="/" type="cylinder" contype="1" conaffinity="1" size="0.021999999999999999 0.0050000000000000001" rgba="1 1 1 0" pos="0 0 -0.12"/>
     </body>
     <site name="arm_base" class="/" pos="0 0 0"/>
@@ -299,7 +299,7 @@
                             <geom name="panda/umi_gripper//unnamed_geom_12" class="panda/umi_gripper/visual" material="panda/umi_gripper/white" mesh="panda/umi_gripper/left_finger_holder"/>
                             <geom name="panda/umi_gripper//unnamed_geom_13" class="panda/umi_gripper/collision" mesh="panda/umi_gripper/left_finger_holder"/>
                             <geom name="panda/umi_gripper//unnamed_geom_14" class="panda/umi_gripper/visual" material="panda/umi_gripper/orange" pos="-0.041722000000000002 0.077899999999999997 -0.015900000000000001" quat="0 0 -1 1" mesh="panda/umi_gripper/left_finger"/>
-                            <geom name="panda/umi_gripper/left_finger_pad" class="panda/umi_gripper/collision" pos="-0.041722000000000002 0.077899999999999997 -0.015900000000000001" quat="0 0 -1 1" mesh="panda/umi_gripper/left_finger"/>
+                            <geom name="panda/umi_gripper/left_finger_pad" class="panda/umi_gripper/collision" friction="2 0.01 0.001" pos="-0.041722000000000002 0.077899999999999997 -0.015900000000000001" quat="0 0 -1 1" mesh="panda/umi_gripper/left_finger"/>
                           </body>
                           <body name="panda/umi_gripper/right_finger_holder" quat="1 1 0 0">
                             <geom name="panda/umi_gripper/right_screw_back_outside" class="panda/umi_gripper/screw" pos="0.051499999999999997 0.070000000000000007 0.012"/>
@@ -314,7 +314,7 @@
                             <geom name="panda/umi_gripper//unnamed_geom_23" class="panda/umi_gripper/visual" material="panda/umi_gripper/white" mesh="panda/umi_gripper/right_finger_holder"/>
                             <geom name="panda/umi_gripper//unnamed_geom_24" class="panda/umi_gripper/collision" mesh="panda/umi_gripper/right_finger_holder"/>
                             <geom name="panda/umi_gripper//unnamed_geom_25" class="panda/umi_gripper/visual" material="panda/umi_gripper/orange" pos="0.041722000000000002 0.077899999999999997 0.0099000000000000008" quat="1 1 0 0" mesh="panda/umi_gripper/right_finger"/>
-                            <geom name="panda/umi_gripper/right_finger_pad" class="panda/umi_gripper/collision" pos="0.041722000000000002 0.077899999999999997 0.0099000000000000008" quat="1 1 0 0" mesh="panda/umi_gripper/right_finger"/>
+                            <geom name="panda/umi_gripper/right_finger_pad" class="panda/umi_gripper/collision" friction="2 0.01 0.001" pos="0.041722000000000002 0.077899999999999997 0.0099000000000000008" quat="1 1 0 0" mesh="panda/umi_gripper/right_finger"/>
                           </body>
                           <body name="panda/umi_gripper/input_camera_mount">
                             <inertial pos="0 0 0" mass="0.001" diaginertia="9.9999999999999995e-07 9.9999999999999995e-07 9.9999999999999995e-07"/>
