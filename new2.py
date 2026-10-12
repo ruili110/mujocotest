@@ -59,6 +59,18 @@ LIVE_POSE_ACTUATOR_NAMES = tuple(
 
 PANDA_JOINT_NAMES = tuple(f"panda/joint{i}" for i in range(1, 8))
 PANDA_ACTUATOR_NAMES = tuple(f"panda/actuator{i}" for i in range(1, 8))
+PANDA_HOME_QPOS = np.array(
+    [
+        -0.01617866471870486,
+        -0.3351507979411188,
+        0.11335772886207839,
+        -1.3269075321321429,
+        0.021510896893726657,
+        0.7344821652580072,
+        0.8923453157986305,
+    ],
+    dtype=np.float64,
+)
 FINGER_JOINT_NAMES = (
     "panda/umi_gripper/left_finger_joint",
     "panda/umi_gripper/right_finger_joint",
@@ -458,25 +470,13 @@ def set_initial_pose(
     gripper_opening: float = 0,
     camera: CameraConfig = CameraConfig(),
 ) -> None:
-    home_arm = {
-        # Final pose from "Demeter_Exp1 - new pos.task" (Pose 2).
-        # Recorded TCP xyz = (0.3059878220, 0.0487312520, 0.8111367658) m.
-        "panda/joint1": -0.01617866471870486,
-        "panda/joint2": -0.3351507979411188,
-        "panda/joint3": 0.11335772886207839,
-        "panda/joint4": -1.3269075321321429,
-        "panda/joint5": 0.021510896893726657,
-        "panda/joint6": 0.7344821652580072,
-        "panda/joint7": 0.8923453157986305,
-    }
-
-    for joint_name, value in home_arm.items():
+    # Terminal pose from "Demeter_Exp1 - new pos.task" (Pose 2).
+    for joint_name, value in zip(PANDA_JOINT_NAMES, PANDA_HOME_QPOS):
         physics.named.data.qpos[joint_name] = value
 
     for actuator_name, joint_name in zip(PANDA_ACTUATOR_NAMES, PANDA_JOINT_NAMES):
-        physics.named.data.ctrl[actuator_name] = np.asarray(
-            physics.named.data.qpos[joint_name]
-        ).item()
+        joint_position = physics.named.data.qpos[joint_name].item()
+        physics.named.data.ctrl[actuator_name] = joint_position
 
     for joint_name in FINGER_JOINT_NAMES:
         physics.named.data.qpos[joint_name] = gripper_opening
@@ -698,10 +698,21 @@ class FrankaUmiCameraEnv:
             )
 
         if object_name == "support_box":
+            geom_id = mujoco.mj_name2id(
+                self.model,
+                mujoco.mjtObj.mjOBJ_GEOM,
+                "support_box",
+            )
+            return (
+                self.model.geom_pos[geom_id].copy(),
+                quat_to_euler_xyz(self.model.geom_quat[geom_id]),
+            )
+
+        if object_name == "pot":
             body_id = mujoco.mj_name2id(
                 self.model,
                 mujoco.mjtObj.mjOBJ_BODY,
-                "support_box_body",
+                "pot",
             )
             return (
                 self.model.body_pos[body_id].copy(),
@@ -711,7 +722,7 @@ class FrankaUmiCameraEnv:
         joint_id = mujoco.mj_name2id(
             self.model,
             mujoco.mjtObj.mjOBJ_JOINT,
-            f"{object_name}_freejoint",
+            "plant_freejoint",
         )
         qpos_address = int(self.model.jnt_qposadr[joint_id])
         free_pose = self.data.qpos[qpos_address : qpos_address + 7]
@@ -751,10 +762,20 @@ class FrankaUmiCameraEnv:
                 continue
 
             if object_name == "support_box":
+                geom_id = mujoco.mj_name2id(
+                    self.model,
+                    mujoco.mjtObj.mjOBJ_GEOM,
+                    "support_box",
+                )
+                self.model.geom_pos[geom_id] = position
+                self.model.geom_quat[geom_id] = quat
+                continue
+
+            if object_name == "pot":
                 body_id = mujoco.mj_name2id(
                     self.model,
                     mujoco.mjtObj.mjOBJ_BODY,
-                    "support_box_body",
+                    "pot",
                 )
                 self.model.body_pos[body_id] = position
                 self.model.body_quat[body_id] = quat
@@ -763,7 +784,7 @@ class FrankaUmiCameraEnv:
             joint_id = mujoco.mj_name2id(
                 self.model,
                 mujoco.mjtObj.mjOBJ_JOINT,
-                f"{object_name}_freejoint",
+                "plant_freejoint",
             )
             qpos_address = int(self.model.jnt_qposadr[joint_id])
             dof_address = int(self.model.jnt_dofadr[joint_id])
