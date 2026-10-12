@@ -64,8 +64,7 @@ RIGHT_CONTACT_SENSOR = "right_weed_contact"
 DEFAULT_GRIPPER_OPENING = 0.04
 FINAL_WEED_POSITION = (0.300, 0.345, 0.375)
 CLEARANCE_HEIGHT = 0.485
-MIDDLE_TARGET_POSITION = (0.340, 0.180, CLEARANCE_HEIGHT)
-MAX_MIDDLE_TARGET_REWARD = 0.7
+MAX_MIDDLE_TARGET_REWARD = 0.44 #0.7
 
 
 def default_config(
@@ -86,7 +85,7 @@ def default_config(
         target_tolerance=0.03,
         success_hold_steps=3,
         force_release_after_hold=force_release_after_hold,
-        robot_qpos_noise=0.01,
+        robot_qpos_noise=0.04,
         weed_lateral_offsets=(-0.09, 0.0, 0.09),
         weed_mass_scale_range=(0.80, 1.20),
         weed_friction_scale_range=(0.70, 1.30),
@@ -212,6 +211,7 @@ class WeedPickMjxWarpEnv(mjx_env.MjxEnv):
         cpu_data.qpos[self._arm_qpos_ids] = PANDA_HOME_QPOS
         mujoco.mj_forward(self._mj_model, cpu_data)
         self._weed_rest_height = float(cpu_data.geom_xpos[self._weed_geom_id, 2])
+        self._middle_target_lift = CLEARANCE_HEIGHT - self._weed_rest_height
 
     @staticmethod
     def _add_contact_sensors(scene: Any) -> None:
@@ -278,7 +278,10 @@ class WeedPickMjxWarpEnv(mjx_env.MjxEnv):
             njmax=self._config.njmax,
         )
         data = mjx.forward(self._mjx_model, data)
-        middle_target_position = jp.asarray(MIDDLE_TARGET_POSITION)
+        weed_start_position = data.geom_xpos[self._weed_geom_id]
+        middle_target_position = weed_start_position.at[2].add(
+            self._middle_target_lift
+        )
 
         info = {
             "rng": rng,
@@ -359,6 +362,7 @@ class WeedPickMjxWarpEnv(mjx_env.MjxEnv):
         reward = self._reward(
             task,
             contact["is_grasped"],
+            info["weed_clears_pot_once"],
             success,
             failure,
         )
@@ -392,9 +396,8 @@ class WeedPickMjxWarpEnv(mjx_env.MjxEnv):
         self, data: mjx.Data, action: jax.Array
     ) -> jax.Array:
         """One batched damped-least-squares IK update."""
-        rotation = action[3:]
-        rotation_norm = jp.linalg.norm(rotation)
-        rotation = rotation / jp.maximum(rotation_norm, 1.0)
+        # Keep the gripper tilt fixed and allow only yaw around world Z.
+        rotation = jp.asarray([0.0, 0.0, action[5]])
         twist = jp.concatenate(
             (action[:3] * self._config.pos_scale, rotation * self._config.rot_scale)
         )
@@ -463,6 +466,7 @@ class WeedPickMjxWarpEnv(mjx_env.MjxEnv):
     def _reward(
         task: dict[str, jax.Array],
         is_grasped: jax.Array,
+        weed_clears_pot_once: jax.Array,
         success: jax.Array,
         failure: jax.Array,
     ) -> jax.Array:
@@ -474,7 +478,7 @@ class WeedPickMjxWarpEnv(mjx_env.MjxEnv):
         dense_reward = (
             reaching_reward
             + 2.0 * middle_target_reward * is_grasped
-            + 3.0 * target_reward * is_grasped
+            + 3.0 * target_reward * is_grasped * weed_clears_pot_once
         )
         return jp.where(
             failure,

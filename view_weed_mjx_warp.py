@@ -55,6 +55,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--episodes", type=int, default=DEFAULT_EPISODES)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument(
+        "--playback-speed",
+        type=float,
+        default=1.0,
+        help="Video playback speed multiplier; use 0.3 for 70%% slower.",
+    )
     parser.add_argument("--upload-wandb", action="store_true")
     parser.add_argument("--wandb-project", default="weed-picking")
     return parser.parse_args()
@@ -207,6 +213,8 @@ def main() -> None:
     args = parse_args()
     if args.episodes < 1:
         raise ValueError("--episodes must be positive")
+    if args.playback_speed <= 0.0:
+        raise ValueError("--playback-speed must be positive")
 
     checkpoint_root = args.checkpoint or DEFAULT_RUN_ROOT / args.run_name
     checkpoint_path = latest_checkpoint(checkpoint_root)
@@ -237,8 +245,9 @@ def main() -> None:
     camera.distance = 1.4
     camera.azimuth = 180
     camera.elevation = -30
-    fps = 1.0 / env.dt / render_every
-    reset_pause_frames = max(round(RESET_PAUSE_SECONDS * fps), 1)
+    simulation_fps = 1.0 / env.dt / render_every
+    output_fps = simulation_fps * args.playback_speed
+    reset_pause_frames = max(round(RESET_PAUSE_SECONDS * output_fps), 1)
     frames = []
     for trajectory in trajectories:
         episode_frames = env.render(
@@ -252,7 +261,7 @@ def main() -> None:
         frames.extend(episode_frames)
 
     media.set_ffmpeg(imageio_ffmpeg.get_ffmpeg_exe())
-    media.write_video(str(output_path), frames, fps=fps)
+    media.write_video(str(output_path), frames, fps=output_fps)
 
     for episode, result in enumerate(episode_results, start=1):
         print(

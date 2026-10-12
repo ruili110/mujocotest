@@ -93,6 +93,7 @@ def _component_slice(component_name: str) -> slice:
 EE_POS_SLICE = _component_slice("ee_pos")
 EE_QUAT_SLICE = _component_slice("ee_quat")
 GRIPPER_WIDTH_SLICE = _component_slice("gripper_width")
+WEED_QUAT_SLICE = _component_slice("weed_quat")
 
 
 def _quaternion_to_matrix(quaternion: np.ndarray) -> np.ndarray:
@@ -154,6 +155,56 @@ def observation_to_absolute_state(observation: np.ndarray) -> np.ndarray:
     ).astype(np.float32)
 
 
+def _interpolate_sequence(
+    samples: np.ndarray,
+    playback_speed: float,
+    *,
+    quaternion_slices: tuple[slice, ...] = (),
+) -> np.ndarray:
+    samples = np.asarray(samples)
+    if samples.ndim != 2 or len(samples) < 2:
+        raise ValueError("Expected a two-dimensional sequence with at least two samples.")
+    if playback_speed <= 0.0:
+        raise ValueError("playback_speed must be positive.")
+
+    num_intervals = len(samples) - 1
+    output_intervals = max(round(num_intervals / playback_speed), 1)
+    positions = np.linspace(0.0, num_intervals, output_intervals + 1)
+    lower_indices = np.floor(positions).astype(np.int64)
+    upper_indices = np.minimum(lower_indices + 1, len(samples) - 1)
+    fraction = (positions - lower_indices)[:, None]
+    interpolated = (
+        (1.0 - fraction) * samples[lower_indices]
+        + fraction * samples[upper_indices]
+    )
+    for quaternion_slice in quaternion_slices:
+        first = samples[lower_indices, quaternion_slice]
+        second = samples[upper_indices, quaternion_slice]
+        second = np.where(
+            np.sum(first * second, axis=-1, keepdims=True) < 0.0,
+            -second,
+            second,
+        )
+        quaternion = (1.0 - fraction) * first + fraction * second
+        interpolated[:, quaternion_slice] = quaternion / np.linalg.norm(
+            quaternion, axis=-1, keepdims=True
+        )
+    return interpolated.astype(samples.dtype, copy=False)
+
+
+def _qpos_quaternion_slices(model: Any) -> tuple[slice, ...]:
+    import mujoco
+
+    quaternion_slices = []
+    for joint_id, joint_type in enumerate(model.jnt_type):
+        qpos_address = int(model.jnt_qposadr[joint_id])
+        if joint_type == mujoco.mjtJoint.mjJNT_FREE:
+            quaternion_slices.append(slice(qpos_address + 3, qpos_address + 7))
+        elif joint_type == mujoco.mjtJoint.mjJNT_BALL:
+            quaternion_slices.append(slice(qpos_address, qpos_address + 4))
+    return tuple(quaternion_slices)
+
+
 class SuccessfulTrajectoryWriter:
     """Append successful episodes to a simple, durable NPZ dataset."""
 
@@ -164,12 +215,16 @@ class SuccessfulTrajectoryWriter:
         fps: float,
         task_name: str,
         include_images: bool = False,
+        playback_speed: float = 1.0,
     ) -> None:
         self.output_dir = output_dir.expanduser().resolve()
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.task_name = task_name
         self.fps = float(fps)
         self.include_images = bool(include_images)
+        self.playback_speed = float(playback_speed)
+        if self.playback_speed <= 0.0:
+            raise ValueError("playback_speed must be positive.")
         self.next_episode_index = self._find_next_episode_index()
         self._write_metadata()
 
@@ -187,6 +242,7 @@ class SuccessfulTrajectoryWriter:
             "format_version": 1,
             "task": self.task_name,
             "fps": self.fps,
+            "playback_speed": self.playback_speed,
             "input_type": "absolute",
             "output_type": "absolute",
             "camera_features": self.include_images,
@@ -390,9 +446,23 @@ class MjxImageRenderer:
 
     def __init__(self, model: Any) -> None:
         import mujoco
+        from new2 import CAMERA_JOINT_NAMES, CAMERA_ROT_JOINT_NAMES, CameraConfig
 
         self.model = model
         self.data = mujoco.MjData(model)
+        camera_joint_names = CAMERA_JOINT_NAMES + CAMERA_ROT_JOINT_NAMES
+        self.camera_qpos_indices = np.asarray(
+            [
+                model.jnt_qposadr[model.joint(joint_name).id]
+                for joint_name in camera_joint_names
+            ],
+            dtype=np.int32,
+        )
+        camera_config = CameraConfig()
+        self.camera_qpos = np.asarray(
+            camera_config.pos + camera_config.euler,
+            dtype=model.qpos0.dtype,
+        )
         self.renderer = mujoco.Renderer(
             model,
             height=IMAGE_HEIGHT,
@@ -405,6 +475,7 @@ class MjxImageRenderer:
         images = []
         for qpos in qposes:
             self.data.qpos[:] = qpos
+            self.data.qpos[self.camera_qpos_indices] = self.camera_qpos
             mujoco.mj_forward(self.model, self.data)
             self.renderer.update_scene(self.data, camera=SIM_CAMERA_NAME)
             images.append(self.renderer.render().copy())
@@ -425,14 +496,24 @@ def _save_successful_rollouts(
     *,
     episode_length: int,
     qposes: np.ndarray | None = None,
+    next_qposes: np.ndarray | None = None,
     model: Any | None = None,
     image_renderer: MjxImageRenderer | None = None,
 ) -> list[Path]:
-    if writer.include_images and (qposes is None or model is None):
-        raise ValueError("Image-enabled trajectory saving requires qposes and a model.")
+    if writer.include_images and (
+        qposes is None or next_qposes is None or model is None
+    ):
+        raise ValueError(
+            "Image-enabled trajectory saving requires current and next qposes "
+            "plus a model."
+        )
 
     successful_episodes = []
     post_success_steps = round(POST_SUCCESS_SECONDS * writer.fps)
+    observation_quaternion_slices = (EE_QUAT_SLICE, WEED_QUAT_SLICE)
+    qpos_quaternion_slices = (
+        _qpos_quaternion_slices(model) if model is not None else ()
+    )
     for episode in range(observations.shape[0]):
         success_steps = np.flatnonzero(
             np.asarray(successes[episode, :episode_length]) > 0.5
@@ -443,13 +524,39 @@ def _save_successful_rollouts(
             int(success_steps[0]) + 1 + post_success_steps,
             observations.shape[1],
         )
+        full_observations = np.concatenate(
+            (
+                observations[episode, :length],
+                next_observations[episode, length - 1 : length],
+            ),
+            axis=0,
+        )
+        interpolated_observations = _interpolate_sequence(
+            full_observations,
+            writer.playback_speed,
+            quaternion_slices=observation_quaternion_slices,
+        )
+
+        interpolated_qposes = None
+        if qposes is not None and next_qposes is not None:
+            full_qposes = np.concatenate(
+                (
+                    qposes[episode, :length],
+                    next_qposes[episode, length - 1 : length],
+                ),
+                axis=0,
+            )
+            interpolated_qposes = _interpolate_sequence(
+                full_qposes,
+                writer.playback_speed,
+                quaternion_slices=qpos_quaternion_slices,
+            )[:-1]
+
         successful_episodes.append(
             (
-                observation_to_absolute_state(observations[episode, :length]),
-                observation_to_absolute_state(
-                    next_observations[episode, :length]
-                ),
-                qposes[episode, :length] if qposes is not None else None,
+                observation_to_absolute_state(interpolated_observations[:-1]),
+                observation_to_absolute_state(interpolated_observations[1:]),
+                interpolated_qposes,
             )
         )
 
@@ -488,6 +595,7 @@ class MjxTrainingTrajectoryCollector:
         seed: int,
         task_name: str = DEFAULT_TASK_NAME,
         include_images: bool = False,
+        playback_speed: float = 1.0,
     ) -> None:
         self.env = env
         self.num_episodes = int(num_episodes)
@@ -497,6 +605,7 @@ class MjxTrainingTrajectoryCollector:
             fps=1.0 / float(env._config.ctrl_dt),
             task_name=task_name,
             include_images=include_images,
+            playback_speed=playback_speed,
         )
         self.image_renderer = (
             MjxImageRenderer(env.mj_model) if include_images else None
@@ -531,6 +640,7 @@ class MjxTrainingTrajectoryCollector:
                     next_state.obs,
                     next_state.metrics["success"],
                     current_state.data.qpos,
+                    next_state.data.qpos,
                 )
                 return (next_state, rng), transition
 
@@ -559,7 +669,7 @@ class MjxTrainingTrajectoryCollector:
         reset_rng, policy_rng = jax.random.split(step_rng)
         reset_rngs = jax.random.split(reset_rng, self.num_episodes)
         policy_rngs = jax.random.split(policy_rng, self.num_episodes)
-        observations, next_observations, successes, qposes = jax.device_get(
+        observations, next_observations, successes, qposes, next_qposes = jax.device_get(
             self._rollout_fn(reset_rngs, policy_rngs, params)
         )
         saved_paths = _save_successful_rollouts(
@@ -569,6 +679,7 @@ class MjxTrainingTrajectoryCollector:
             successes,
             episode_length=self.env._config.episode_length,
             qposes=qposes,
+            next_qposes=next_qposes,
             model=self.env.mj_model,
             image_renderer=self.image_renderer,
         )
@@ -587,6 +698,7 @@ def collect_mjx_checkpoint_trajectories(
     seed: int,
     task_name: str,
     include_images: bool = False,
+    playback_speed: float = 1.0,
 ) -> list[Path]:
     """Appends successful training-style rollouts from multiple checkpoints."""
     from brax.training.acme import running_statistics
@@ -608,6 +720,7 @@ def collect_mjx_checkpoint_trajectories(
         seed=seed,
         task_name=task_name,
         include_images=include_images,
+        playback_speed=playback_speed,
     )
     network = ppo_networks.make_ppo_networks(
         env.observation_size,
@@ -642,6 +755,7 @@ def collect_mjx_trajectories(
     seed: int,
     task_name: str,
     include_images: bool = False,
+    playback_speed: float = 1.0,
 ) -> list[Path]:
     """Saves successful MJX episodes plus a one-second release tail."""
     import jax
@@ -674,6 +788,7 @@ def collect_mjx_trajectories(
                 next_state.obs,
                 next_state.metrics["success"],
                 current_state.data.qpos,
+                next_state.data.qpos,
             )
             return (next_state, rng), transition
 
@@ -690,7 +805,7 @@ def collect_mjx_trajectories(
 
     reset_rngs = jax.random.split(jax.random.PRNGKey(seed), num_episodes)
     policy_rngs = jax.random.split(jax.random.PRNGKey(seed + 1), num_episodes)
-    observations, next_observations, successes, qposes = jax.device_get(
+    observations, next_observations, successes, qposes, next_qposes = jax.device_get(
         jax.jit(jax.vmap(rollout))(reset_rngs, policy_rngs)
     )
 
@@ -699,6 +814,7 @@ def collect_mjx_trajectories(
         fps=1.0 / float(env_config.ctrl_dt),
         task_name=task_name,
         include_images=include_images,
+        playback_speed=playback_speed,
     )
     return _save_successful_rollouts(
         writer,
@@ -707,6 +823,7 @@ def collect_mjx_trajectories(
         successes,
         episode_length=env_config.episode_length,
         qposes=qposes,
+        next_qposes=next_qposes,
         model=env.mj_model,
     )
 
@@ -729,6 +846,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--task-name", default=DEFAULT_TASK_NAME)
     parser.add_argument(
+        "--playback-speed",
+        type=float,
+        default=1.0,
+        help="Trajectory speed multiplier; use 0.3 for 70%% slower motion.",
+    )
+    parser.add_argument(
         "--images",
         action="store_true",
         help=(
@@ -745,6 +868,8 @@ def main() -> None:
     args = parse_args()
     if args.episodes < 1:
         raise ValueError("--episodes must be positive")
+    if args.playback_speed <= 0.0:
+        raise ValueError("--playback-speed must be positive")
 
     checkpoint_root = args.checkpoint or args.run_root / args.run_name
     checkpoint_paths = all_checkpoints(checkpoint_root)
@@ -761,6 +886,7 @@ def main() -> None:
             seed=args.seed,
             task_name=args.task_name,
             include_images=args.images,
+            playback_speed=args.playback_speed,
         )
         candidate_episodes = len(checkpoint_paths) * args.episodes
         print(f"Loaded checkpoints: {len(checkpoint_paths)}")
@@ -772,6 +898,7 @@ def main() -> None:
             seed=args.seed,
             task_name=args.task_name,
             include_images=args.images,
+            playback_speed=args.playback_speed,
         )
         candidate_episodes = args.episodes
         print(f"Loaded checkpoint: {checkpoint_path}")
